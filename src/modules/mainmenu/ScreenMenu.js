@@ -25,6 +25,10 @@ var ScreenMenu = cc.Layer.extend({
         this.addChild(btnDragonbones);
         btnDragonbones.addClickEventListener(this.onSelectDragonbones.bind(this));
 
+        var btnGoldDigger = gv.commonButton(200, 64, cc.winSize.width/2, yBtn - 100,"GoldDigger");
+        this.addChild(btnGoldDigger);
+        btnGoldDigger.addClickEventListener(this.onSelectGoldDigger.bind(this));
+
     },
     onEnter:function(){
         this._super();
@@ -40,6 +44,10 @@ var ScreenMenu = cc.Layer.extend({
     onSelectDragonbones:function(sender)
     {
         fr.view(ScreenDragonbones);
+    },
+    onSelectGoldDigger:function(sender)
+    {
+        fr.view(ScreenGoldDigger);
     }
 
 });
