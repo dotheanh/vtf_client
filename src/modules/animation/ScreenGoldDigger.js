@@ -15,8 +15,8 @@ var ScreenGoldDigger = cc.Layer.extend({
     isMouseDown:false,
 
     ctor:function() {
+        this.claw = null;
         this._super();
-        //cc.screen.requestFullScreen();
         var size = cc.director.getVisibleSize();
 
         var btnPlayIdle = gv.commonButton(100, 34, size.width - 80, size.height - 52,"Idle");
@@ -28,7 +28,6 @@ var ScreenGoldDigger = cc.Layer.extend({
         btnGenerate.setTitleFontSize(15);
         this.addChild(btnGenerate);
         btnGenerate.addClickEventListener(this.generateItem.bind(this));
-
         // var btn_change_display = gv.commonButton(200, 64, size.width - 120, size.height - 220,"Change display");
         // btn_change_display.setTitleFontSize(28);
         // this.addChild(btn_change_display);
@@ -53,7 +52,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.addChild(this.countdown);
 
         this.nodeAnimation = new cc.Node();
-        this.nodeAnimation.setPosition(xPos, size.height - size.height*0.2);
+        this.nodeAnimation.setPosition(xPos, size.height - size.height*0.2);    // vị trí nhân vật character
 		this.nodeAnimation.setScaleX(-1);
         this.addChild(this.nodeAnimation);
 
@@ -63,6 +62,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.lblResult.setAnchorPoint(0.5,0.5);
         this.lblResult.retain();
         this.testPlayAnimation();
+        this.schedule(this.update);
     },
     onEnter:function(){
         this._super();
@@ -79,6 +79,13 @@ var ScreenGoldDigger = cc.Layer.extend({
     onSelectReset:function(sender)
     {
         fr.view(ScreenGoldDigger);
+    },
+    update: function (dt){
+        //console.log("update: " + dt);    // mỗi khi màn hình được vẽ lại thì hàm này được gọi => tính toán vị trí, tọa độ
+        if (this.claw != null) {
+            this.angle = 270-this.claw.getRotation();
+        }
+        // Todo: check collition
     },
     testAnimationBinding:function()
     {
@@ -116,7 +123,9 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.character = fr.createAnimationById(resAniId.chipu,this);
         this.nodeAnimation.addChild(this.character);
         this.character.getAnimation().gotoAndPlay("win_0_",-1,-1,1);
-        this.character.setCompleteListener(this.onFinishAnimations.bind(this));  
+        this.character.setCompleteListener(this.onFinishAnimations.bind(this));
+        
+        this.onThrowClaw().bind(this);
     },
     // testChangeDisplayOnBone:function()
     // {
@@ -160,12 +169,29 @@ var ScreenGoldDigger = cc.Layer.extend({
     },
     generateItem:function()
     {
+        // hiện móc câu
         let scrSize = cc.director.getVisibleSize();
+        this.claw = cc.Sprite.create("assests/game/animation/golddigger/claw2.png");
+        let clawType = randomInt(1, 6);
+        this.claw = cc.Sprite.create("assests/game/animation/golddigger/claw"+clawType+".png");
+        this.claw.attr({
+            x: (scrSize.width - 220)/2,
+            y: scrSize.height - scrSize.height*0.28
+        });
+        this.addChild(this.claw);
+
+        let angle = 180;
+        var initRotateClaw = cc.rotateBy(0, 90);
+        var rotateClawLR = cc.rotateBy(2, -angle);
+        var rotateClawRL = cc.rotateBy(2, angle);
+        this.rotating = cc.sequence(initRotateClaw, cc.repeat(cc.sequence(rotateClawLR, rotateClawRL), 30));
+        this.claw.runAction(this.rotating);
+
+        // generate random gold and diamond
         let itemsCount = 100;
         let itemsCoord = []; // ghi lại tọa độ các item đã tồn tại để tránh trùng tọa độ
         for(var i = 0; i < itemsCount; i++)
         {
-            // generate random gold and diamond
             let item;
             let itemType = randomInt(1, 8);
             switch (itemType) {
@@ -230,6 +256,24 @@ var ScreenGoldDigger = cc.Layer.extend({
         btnTestFinishEvent.setTitleFontSize(15);
         this.addChild(btnTestFinishEvent);
         btnTestFinishEvent.addClickEventListener(this.testFinishAnimationEvent.bind(this));   // testFinishAnimationEvent: do animation
+    },
+    onThrowClaw:function()
+    {        
+        // di chuyển móc câu
+        let scrSize = cc.director.getVisibleSize();
+        let radian = this.angle/360 * 2 * Math.PI;
+        let deltaX = Math.cos(radian)*scrSize.width/1.5;
+        let deltaY = Math.sin(radian)*scrSize.width/1.5;
+        this.claw.stopAction(this.rotating);
+        this.claw.runAction(cc.sequence(cc.moveBy(2, deltaX, deltaY), cc.moveBy(2, -deltaX, -deltaY),cc.callFunc(this.turnBack, this))); // quăng móc và quay về
+    },
+    turnBack: function(){
+        let angle = 180;
+        var initRotateClaw = cc.rotateTo(1, 90);
+        var rotateClawLR = cc.rotateBy(2, -angle);
+        var rotateClawRL = cc.rotateBy(2, angle);
+        this.rotating = cc.sequence(initRotateClaw, cc.repeat(cc.sequence(rotateClawLR, rotateClawRL), 30));
+        this.claw.runAction(this.rotating);
     }
 
 });
