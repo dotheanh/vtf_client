@@ -14,20 +14,23 @@ var ScreenGoldDigger = cc.Layer.extend({
 
     ctor:function() {
         this._super();
+        //cc.screen.requestFullScreen();
         var size = cc.director.getVisibleSize();
 
-        var btnPlayIdle = gv.commonButton(200, 64, size.width - 120, size.height - 52,"Idle");
+        var btnPlayIdle = gv.commonButton(100, 34, size.width - 80, size.height - 52,"Idle");
+        btnPlayIdle.setTitleFontSize(15);
         this.addChild(btnPlayIdle);
         btnPlayIdle.addClickEventListener(this.testPlayAnimation.bind(this));   // testPlayAnimation: stop animation
 
-        var btnTestFinishEvent = gv.commonButton(200, 64, size.width - 120, size.height - 220,"Dig it!");
-        btnTestFinishEvent.setTitleFontSize(26);
-        this.addChild(btnTestFinishEvent);
-        btnTestFinishEvent.addClickEventListener(this.testFinishAnimationEvent.bind(this));   // testFinishAnimationEvent: do animation
-
-        var btnGenerate = gv.commonButton(200, 64, size.width - 120, size.height - 136,"Generate");
+        var btnGenerate = gv.commonButton(100, 34, size.width - 80, size.height - 92,"Generate");
+        btnGenerate.setTitleFontSize(15);
         this.addChild(btnGenerate);
         btnGenerate.addClickEventListener(this.generateItem.bind(this));
+
+        var btnTestFinishEvent = gv.commonButton(100, 34, size.width - 80, size.height - 132,"Dig it!");
+        btnTestFinishEvent.setTitleFontSize(15);
+        this.addChild(btnTestFinishEvent);
+        btnTestFinishEvent.addClickEventListener(this.testFinishAnimationEvent.bind(this));   // testFinishAnimationEvent: do animation
 
         // var btn_change_display = gv.commonButton(200, 64, size.width - 120, size.height - 220,"Change display");
         // btn_change_display.setTitleFontSize(28);
@@ -39,14 +42,18 @@ var ScreenGoldDigger = cc.Layer.extend({
         // btn_test_load.addClickEventListener(this.testLoadAnimation.bind(this));
         
 
-        var btnBack = gv.commonButton(100, 64, size.width - 70, 52,"Back");
-        this.addChild(btnBack);
-        btnBack.addClickEventListener(this.onSelectBack.bind(this));
+        var btnReset = gv.commonButton(100, 64, size.width - 70, 52,"Reset");
+        this.addChild(btnReset);
+        btnReset.addClickEventListener(this.onSelectReset.bind(this));
 
 
         var xPos = (size.width - 220)/2;
-        this.lblLog = gv.commonText(fr.Localization.text("..."), xPos, size.height*0.2);
-        this.addChild(this.lblLog);
+        this.score = gv.commonText(fr.Localization.text("..."), size.width*2/3, size.height-size.height/8);
+        this.addChild(this.score);
+
+        this.countdown = gv.commonText(fr.Localization.text("60"), size.width*1/6, size.height-size.height/8);
+        //countdown.setTitleFontSize(15);
+        this.addChild(this.countdown);
 
         this.nodeAnimation = new cc.Node();
         this.nodeAnimation.setPosition(xPos, size.height - size.height*0.2);
@@ -72,9 +79,9 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.nodeAnimation.setScale(0.5);
         this.nodeAnimation.runAction(cc.scaleTo(0.5, 1.0).easing(cc.easeBounceOut()));
     },
-    onSelectBack:function(sender)
+    onSelectReset:function(sender)
     {
-        fr.view(ScreenMenu);
+        fr.view(ScreenGoldDigger);
     },
     testAnimationBinding:function()
     {
@@ -157,24 +164,50 @@ var ScreenGoldDigger = cc.Layer.extend({
     generateItem:function()
     {
         let scrSize = cc.director.getVisibleSize();
-        let itemsCount = 5;
+        let itemsCount = 100;
+        let itemsCoord = []; // ghi lại tọa độ các item đã tồn tại để tránh trùng tọa độ
         for(var i = 0; i < itemsCount; i++)
         {
             // generate random gold and diamond
             let item;
-            let itemType = randomInt(1, 5);
+            let itemType = randomInt(1, 8);
             switch (itemType) {
-                case 1: item = cc.Sprite.create("assests/game/animation/golddigger/gold20.png"); break;
-                case 2: item = cc.Sprite.create("assests/game/animation/golddigger/gold50.png"); break;
-                case 3: item = cc.Sprite.create("assests/game/animation/golddigger/gold80.png"); break;
-                case 4: item = cc.Sprite.create("assests/game/animation/golddigger/diamond20.png"); break;
-                case 5: item = cc.Sprite.create("assests/game/animation/golddigger/diamond50.png"); break;
+                case 1: item = cc.Sprite.create("assests/game/animation/golddigger/rock20.png"); break;
+                case 2: item = cc.Sprite.create("assests/game/animation/golddigger/rock50.png"); break;
+                //case 3: item = cc.Sprite.create("assests/game/animation/golddigger/rock100.png"); break;
+                case 3: item = cc.Sprite.create("assests/game/animation/golddigger/gold50.png"); break;
+                case 4: item = cc.Sprite.create("assests/game/animation/golddigger/gold20.png"); break;
+                case 5: item = cc.Sprite.create("assests/game/animation/golddigger/gold50.png"); break;
+                case 6: item = cc.Sprite.create("assests/game/animation/golddigger/gold80.png"); break;
+                case 7: item = cc.Sprite.create("assests/game/animation/golddigger/diamond20.png"); break;
+                case 8: item = cc.Sprite.create("assests/game/animation/golddigger/diamond50.png"); break;
             }
-            item.attr({
-                x: randomInt(40, scrSize.width-40), // random( 40 to size.width-40)
-                y: randomInt(scrSize.height/4, scrSize.height - scrSize.height/3) // random( size.height/4 to size.height - size.height/3)
-            });
-            this.addChild(item);
+            let overwrite = false;
+            let randomCount = 0;
+            let newCoord;
+            do {
+                randomCount++;
+                newCoord = {
+                    xPosition: randomInt(40, scrSize.width-40), // random( 40 to size.width-40)
+                    yPosition: randomInt(scrSize.height/4, scrSize.height - scrSize.height/3) // random( size.height/4 to size.height - size.height/3)
+                }
+                itemsCoord.forEach(coord => {
+                    if (Math.abs(coord.xPosition - newCoord.xPosition) < 50 && Math.abs(coord.yPosition - newCoord.yPosition) < 50) { // quá gần nhau
+                        overwrite = true;
+                    }
+                });
+            }
+            while (overwrite === true && randomCount < 10); // sau 10 lần thử mà ko tìm ra vị trí phù hợp thì bỏ
+
+            if (overwrite === false && randomCount <= 10) { // tọa độ hợp lệ => hiển thị
+                itemsCoord.push(newCoord);
+                item.attr({
+                    x: newCoord.xPosition,
+                    y: newCoord.yPosition 
+                });
+                this.addChild(item);
+            }
+
         }
 
     }
