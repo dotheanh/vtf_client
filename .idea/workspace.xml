@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="e4d55f2b-12a8-484d-a811-f49e89a3e91c" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/main.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/modules/animation/ScreenGoldDigger.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/animation/ScreenGoldDigger.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -685,7 +684,7 @@
       <workItem from="1553831685560" duration="3045000" />
       <workItem from="1620816161185" duration="1372000" />
       <workItem from="1620870053301" duration="1395000" />
-      <workItem from="1620876773156" duration="8127000" />
+      <workItem from="1620876773156" duration="9660000" />
     </task>
     <servers />
   </component>

@@ -2,6 +2,8 @@
  * Created by GSN on 7/9/2015.
  */
 
+const duration = 60*1;
+
 // generate random
 function randomInt(min, max) { // min and max included 
     return Math.floor(Math.random() * (max - min + 1) + min);
@@ -27,11 +29,6 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.addChild(btnGenerate);
         btnGenerate.addClickEventListener(this.generateItem.bind(this));
 
-        var btnTestFinishEvent = gv.commonButton(100, 34, size.width - 80, size.height - 132,"Dig it!");
-        btnTestFinishEvent.setTitleFontSize(15);
-        this.addChild(btnTestFinishEvent);
-        btnTestFinishEvent.addClickEventListener(this.testFinishAnimationEvent.bind(this));   // testFinishAnimationEvent: do animation
-
         // var btn_change_display = gv.commonButton(200, 64, size.width - 120, size.height - 220,"Change display");
         // btn_change_display.setTitleFontSize(28);
         // this.addChild(btn_change_display);
@@ -51,7 +48,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.score = gv.commonText(fr.Localization.text("..."), size.width*2/3, size.height-size.height/8);
         this.addChild(this.score);
 
-        this.countdown = gv.commonText(fr.Localization.text("60"), size.width*1/6, size.height-size.height/8);
+        this.countdown = gv.commonText(fr.Localization.text("01:00"), size.width*1/6, size.height-size.height/8);
         //countdown.setTitleFontSize(15);
         this.addChild(this.countdown);
 
@@ -210,6 +207,29 @@ var ScreenGoldDigger = cc.Layer.extend({
 
         }
 
+        // hiển thị thời gian đếm ngược
+        var timer = duration, minutes, seconds;
+        const countdownBox = this.countdown;
+        setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            //display.textContent = minutes + ":" + seconds;/// update tẽt
+            countdownBox.setString(minutes + ":" + seconds);
+
+            if (--timer < 0) {
+                countdownBox.setString("TIME OUT");
+            }
+        }, 1000);
+
+        // hiển thị nút đào vàng
+        var btnTestFinishEvent = gv.commonButton(100, 34, scrSize.width - 80, scrSize.height - 132,"Dig it!");
+        btnTestFinishEvent.setTitleFontSize(15);
+        this.addChild(btnTestFinishEvent);
+        btnTestFinishEvent.addClickEventListener(this.testFinishAnimationEvent.bind(this));   // testFinishAnimationEvent: do animation
     }
 
 });
