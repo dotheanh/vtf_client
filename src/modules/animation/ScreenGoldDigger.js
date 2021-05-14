@@ -45,8 +45,9 @@ var ScreenGoldDigger = cc.Layer.extend({
 
 
         var xPos = (size.width - 220)/2;
-        this.score = gv.commonText(fr.Localization.text("..."), size.width*2/3, size.height-size.height/8);
-        this.addChild(this.score);
+        this.score = 0;
+        this.scoreBox = gv.commonText(fr.Localization.text("..."), size.width*2/3, size.height-size.height/8);
+        this.addChild(this.scoreBox);
 
         this.countdownBox = gv.commonText(fr.Localization.text("01:00"), size.width*1/6, size.height-size.height/8);
         //countdown.setTitleFontSize(15);
@@ -88,13 +89,14 @@ var ScreenGoldDigger = cc.Layer.extend({
         }
         // Todo: check collition
         if (this.ableToTouchItem) {
-            this.itemSprites.forEach(sprite => {
+            this.itemSprites.forEach((sprite, index) => {
                 if (this.checkTouchItem(sprite)) {
-                    console.log("Touch!!");
                     this.ableToTouchItem = false;
                     this.claw.stopAction(this.normalClawCycle);
                     this.absolutelyReturnClawAction = cc.moveTo(2, this.initClawX, this.initClawY); /// khai báp trùng lặp
-                    this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this)));
+                    sprite.runAction(cc.moveTo(2, this.initClawX, this.initClawY));
+                    this.itemSprites.splice(index, 1);//////////////////
+                    this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{sprite.getParent().removeChild(sprite,true);}),cc.callFunc(()=>{this.scoreBox.setString(++this.score)})));
                 }
             })
         }
@@ -192,7 +194,8 @@ var ScreenGoldDigger = cc.Layer.extend({
             x: this.initClawX,
             y: this.initClawY
         });
-        this.claw.anchorY = 0.5;
+        this.claw.anchorY = 1;
+        this.claw.setLocalZOrder(10);
         this.addChild(this.claw);
 
         let angle = 180;
@@ -307,8 +310,8 @@ var ScreenGoldDigger = cc.Layer.extend({
         let y = this.claw.getPositionY();
         let itemX = item.getPositionX();
         let itemY = item.getPositionY();
-        let itemWidth = 10;
-        let itemHeight = 10;
+        let itemWidth = item.getContentSize().height/2;
+        let itemHeight = item.getContentSize().width/2;
         return ((itemX - itemWidth <= x && x <= itemX + itemWidth) && (itemY - itemHeight <= y && y <= itemY + itemHeight));
     }
 
