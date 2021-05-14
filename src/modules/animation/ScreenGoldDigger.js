@@ -20,12 +20,12 @@ var ScreenGoldDigger = cc.Layer.extend({
         this._super();
         var size = cc.director.getVisibleSize();
 
-        var btnPlayIdle = gv.commonButton(100, 34, size.width - 80, size.height - 52,"Idle");
-        btnPlayIdle.setTitleFontSize(15);
-        this.addChild(btnPlayIdle);
-        btnPlayIdle.addClickEventListener(this.testPlayAnimation.bind(this));   // testPlayAnimation: stop animation
+        // var btnPlayIdle = gv.commonButton(100, 34, size.width - 80, size.height - 52,"Idle");
+        // btnPlayIdle.setTitleFontSize(15);
+        // this.addChild(btnPlayIdle);
+        // btnPlayIdle.addClickEventListener(this.testPlayAnimation.bind(this));   // testPlayAnimation: stop animation
 
-        var btnGenerate = gv.commonButton(100, 34, size.width - 80, size.height - 92,"Generate");
+        var btnGenerate = gv.commonButton(100, 34, size.width - 80, size.height - 52,"Generate");
         btnGenerate.setTitleFontSize(15);
         this.addChild(btnGenerate);
         btnGenerate.addClickEventListener(this.generateItem.bind(this));
@@ -39,14 +39,15 @@ var ScreenGoldDigger = cc.Layer.extend({
         // btn_test_load.addClickEventListener(this.testLoadAnimation.bind(this));
         
 
-        var btnReset = gv.commonButton(100, 64, size.width - 70, 52,"Reset");
+        var btnReset = gv.commonButton(100, 34, 70, size.height - 30,"Reset");
+        btnReset.setTitleFontSize(15);
         this.addChild(btnReset);
         btnReset.addClickEventListener(this.onSelectReset.bind(this));
 
 
         var xPos = (size.width - 220)/2;
         this.score = 0;
-        this.scoreBox = gv.commonText(fr.Localization.text("..."), size.width*2/3, size.height-size.height/8);
+        this.scoreBox = gv.commonText(fr.Localization.text("0"), size.width*2/3, size.height-size.height/8);
         this.addChild(this.scoreBox);
 
         this.countdownBox = gv.commonText(fr.Localization.text("01:00"), size.width*1/6, size.height-size.height/8);
@@ -59,10 +60,10 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.addChild(this.nodeAnimation);
 
         this.character = null;
-        this.lblResult = new cc.LabelBMFont("",res.FONT_BITMAP_DICE_NUMBER);
+        // this.lblResult = new cc.LabelBMFont("",res.FONT_BITMAP_DICE_NUMBER);
 
-        this.lblResult.setAnchorPoint(0.5,0.5);
-        this.lblResult.retain();
+        // this.lblResult.setAnchorPoint(0.5,0.5);
+        // this.lblResult.retain();
         this.testPlayAnimation();
         this.schedule(this.update);
     },
@@ -202,7 +203,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         var initRotateClaw = cc.rotateBy(0, 90);
         var rotateClawLR = cc.rotateBy(2, -angle);
         var rotateClawRL = cc.rotateBy(2, angle);
-        this.rotatingAction = cc.sequence(initRotateClaw, cc.repeat(cc.sequence(rotateClawLR, rotateClawRL), 30));
+        this.rotatingAction = cc.sequence(initRotateClaw, cc.repeat(cc.sequence(rotateClawLR, rotateClawRL), 99));
         this.claw.runAction(this.rotatingAction);
 
         // generate random gold and diamond
@@ -230,7 +231,7 @@ var ScreenGoldDigger = cc.Layer.extend({
                 randomCount++;
                 newCoord = {
                     xPosition: randomInt(40, scrSize.width-40), // random( 40 to size.width-40)
-                    yPosition: randomInt(scrSize.height/4, scrSize.height - scrSize.height/3) // random( size.height/4 to size.height - size.height/3)
+                    yPosition: randomInt(40, scrSize.height - scrSize.height/2.2) // random( size.height/4 to size.height - size.height/3)
                 }
                 itemsCoord.forEach(coord => {
                     if (Math.abs(coord.xPosition - newCoord.xPosition) < 50 && Math.abs(coord.yPosition - newCoord.yPosition) < 50) { // quá gần nhau
@@ -275,6 +276,16 @@ var ScreenGoldDigger = cc.Layer.extend({
         btnTestFinishEvent.setTitleFontSize(15);
         this.addChild(btnTestFinishEvent);
         btnTestFinishEvent.addClickEventListener(this.testFinishAnimationEvent.bind(this));   // testFinishAnimationEvent: do animation
+
+        // var digScreen = new cc.Node();
+        // digScreen.attr({
+        //     x: 0,
+        //     y: 0
+        // });
+        // digScreen.setContentSize(cc.size(scrSize.width,scrSize.height - scrSize.height/2.2));
+        // digScreen.addClickEventListener(this.testFinishAnimationEvent.bind(this));   // testFinishAnimationEvent: do animation
+        // digScreen.setTag("digScreen");
+        // this.addChild(digScreen);
     },
     onThrowClaw:function()
     {
@@ -297,7 +308,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         var backtoRotationClaw = cc.rotateTo(1, 90);
         var rotateClawLR = cc.rotateBy(2, -angle);
         var rotateClawRL = cc.rotateBy(2, angle);
-        this.rotateAction = cc.sequence(backtoRotationClaw, cc.repeat(cc.sequence(rotateClawLR, rotateClawRL), 30));
+        this.rotateAction = cc.sequence(backtoRotationClaw, cc.repeat(cc.sequence(rotateClawLR, rotateClawRL), 99));
         this.rotatingAction = cc.sequence(cc.delayTime(this.absolutelyReturnClawAction.getDuration()), this.rotateAction);
         this.claw.runAction(this.absolutelyReturnClawAction);    //=> ko thể stop rotatingAction!!!!!!!!
         this.claw.runAction(this.rotatingAction);
