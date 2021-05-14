@@ -16,6 +16,7 @@ var ScreenGoldDigger = cc.Layer.extend({
 
     ctor:function() {
         this.claw = null;
+        this.itemSprites = [];
         this._super();
         var size = cc.director.getVisibleSize();
 
@@ -47,9 +48,9 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.score = gv.commonText(fr.Localization.text("..."), size.width*2/3, size.height-size.height/8);
         this.addChild(this.score);
 
-        this.countdown = gv.commonText(fr.Localization.text("01:00"), size.width*1/6, size.height-size.height/8);
+        this.countdownBox = gv.commonText(fr.Localization.text("01:00"), size.width*1/6, size.height-size.height/8);
         //countdown.setTitleFontSize(15);
-        this.addChild(this.countdown);
+        this.addChild(this.countdownBox);
 
         this.nodeAnimation = new cc.Node();
         this.nodeAnimation.setPosition(xPos, size.height - size.height*0.2);    // vị trí nhân vật character
@@ -86,6 +87,17 @@ var ScreenGoldDigger = cc.Layer.extend({
             this.angle = 270-this.claw.getRotation();
         }
         // Todo: check collition
+        if (this.ableToTouchItem) {
+            this.itemSprites.forEach(sprite => {
+                if (this.checkTouchItem(sprite)) {
+                    console.log("Touch!!");
+                    this.ableToTouchItem = false;
+                    this.claw.stopAction(this.normalClawCycle);
+                    this.absolutelyReturnClawAction = cc.moveTo(2, this.initClawX, this.initClawY); /// khai báp trùng lặp
+                    this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this)));
+                }
+            })
+        }
     },
     testAnimationBinding:function()
     {
@@ -125,7 +137,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.character.getAnimation().gotoAndPlay("win_0_",-1,-1,1);
         this.character.setCompleteListener(this.onFinishAnimations.bind(this));
         
-        this.onThrowClaw().bind(this);
+        this.onThrowClaw();
     },
     // testChangeDisplayOnBone:function()
     // {
@@ -174,18 +186,21 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.claw = cc.Sprite.create("assests/game/animation/golddigger/claw2.png");
         let clawType = randomInt(1, 6);
         this.claw = cc.Sprite.create("assests/game/animation/golddigger/claw"+clawType+".png");
+        this.initClawX = (scrSize.width - 220)/2;
+        this.initClawY = scrSize.height - scrSize.height*0.21;
         this.claw.attr({
-            x: (scrSize.width - 220)/2,
-            y: scrSize.height - scrSize.height*0.28
+            x: this.initClawX,
+            y: this.initClawY
         });
+        this.claw.anchorY = 0.5;
         this.addChild(this.claw);
 
         let angle = 180;
         var initRotateClaw = cc.rotateBy(0, 90);
         var rotateClawLR = cc.rotateBy(2, -angle);
         var rotateClawRL = cc.rotateBy(2, angle);
-        this.rotating = cc.sequence(initRotateClaw, cc.repeat(cc.sequence(rotateClawLR, rotateClawRL), 30));
-        this.claw.runAction(this.rotating);
+        this.rotatingAction = cc.sequence(initRotateClaw, cc.repeat(cc.sequence(rotateClawLR, rotateClawRL), 30));
+        this.claw.runAction(this.rotatingAction);
 
         // generate random gold and diamond
         let itemsCount = 100;
@@ -229,13 +244,14 @@ var ScreenGoldDigger = cc.Layer.extend({
                     y: newCoord.yPosition 
                 });
                 this.addChild(item);
+                this.itemSprites.push(item);
             }
 
         }
 
         // hiển thị thời gian đếm ngược
         var timer = duration, minutes, seconds;
-        const countdownBox = this.countdown;
+        const countdownBox = this.countdownBox;
         setInterval(function () {
             minutes = parseInt(timer / 60, 10);
             seconds = parseInt(timer % 60, 10);
@@ -258,22 +274,42 @@ var ScreenGoldDigger = cc.Layer.extend({
         btnTestFinishEvent.addClickEventListener(this.testFinishAnimationEvent.bind(this));   // testFinishAnimationEvent: do animation
     },
     onThrowClaw:function()
-    {        
+    {
+        this.ableToTouchItem = true;
         // di chuyển móc câu
         let scrSize = cc.director.getVisibleSize();
         let radian = this.angle/360 * 2 * Math.PI;
         let deltaX = Math.cos(radian)*scrSize.width/1.5;
         let deltaY = Math.sin(radian)*scrSize.width/1.5;
-        this.claw.stopAction(this.rotating);
-        this.claw.runAction(cc.sequence(cc.moveBy(2, deltaX, deltaY), cc.moveBy(2, -deltaX, -deltaY),cc.callFunc(this.turnBack, this))); // quăng móc và quay về
+        this.claw.stopAction(this.rotatingAction);
+        this.throwClawAction = cc.moveBy(2, deltaX, deltaY);
+        this.normalClawCycle = cc.sequence(this.throwClawAction, cc.callFunc(this.onNormalReturnClaw, this))
+        this.claw.runAction(this.normalClawCycle); // quăng móc và quay về
+        //this.claw.stopActionByTag(100)
     },
-    turnBack: function(){
+    onNormalReturnClaw: function(){
+        this.ableToTouchItem = false;
+        this.absolutelyReturnClawAction = cc.moveTo(2, this.initClawX, this.initClawY);
         let angle = 180;
-        var initRotateClaw = cc.rotateTo(1, 90);
+        var backtoRotationClaw = cc.rotateTo(1, 90);
         var rotateClawLR = cc.rotateBy(2, -angle);
         var rotateClawRL = cc.rotateBy(2, angle);
-        this.rotating = cc.sequence(initRotateClaw, cc.repeat(cc.sequence(rotateClawLR, rotateClawRL), 30));
-        this.claw.runAction(this.rotating);
+        this.rotateAction = cc.sequence(backtoRotationClaw, cc.repeat(cc.sequence(rotateClawLR, rotateClawRL), 30));
+        this.rotatingAction = cc.sequence(cc.delayTime(this.absolutelyReturnClawAction.getDuration()), this.rotateAction);
+        this.claw.runAction(this.absolutelyReturnClawAction);    //=> ko thể stop rotatingAction!!!!!!!!
+        this.claw.runAction(this.rotatingAction);
+        //this.rotatingAction.setTag(100);
+
+        //cc.sequence(this.claw.runAction(this.absolutelyReturnClawAction),this.claw.runAction(this.rotatingAction));
+    },
+    checkTouchItem: function(item){
+        let x = this.claw.getPositionX();
+        let y = this.claw.getPositionY();
+        let itemX = item.getPositionX();
+        let itemY = item.getPositionY();
+        let itemWidth = 10;
+        let itemHeight = 10;
+        return ((itemX - itemWidth <= x && x <= itemX + itemWidth) && (itemY - itemHeight <= y && y <= itemY + itemHeight));
     }
 
 });

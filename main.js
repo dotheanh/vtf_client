@@ -16,7 +16,7 @@ cc.game.onStart = function () {
     cc.loader.resPath = "res";
     cc.LoaderScene.preload(g_resources, function () {
         //hide fps
-        cc.director.setDisplayStats(true);
+        cc.director.setDisplayStats(false);
         // Setup the resolution policy and design resolution size
         var frameSize = cc.view.getFrameSize();
         var ratio = frameSize.width/frameSize.height;
