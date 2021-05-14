@@ -2,14 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e4d55f2b-12a8-484d-a811-f49e89a3e91c" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/assests/game/animation/golddigger/claw1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assests/game/animation/golddigger/claw2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assests/game/animation/golddigger/claw3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assests/game/animation/golddigger/claw4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assests/game/animation/golddigger/claw5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assests/game/animation/golddigger/claw6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assests/game/animation/golddigger/claws.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/main.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/modules/animation/ScreenGoldDigger.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/animation/ScreenGoldDigger.js" afterDir="false" />
     </list>
@@ -694,6 +686,7 @@
       <workItem from="1620870053301" duration="1395000" />
       <workItem from="1620876773156" duration="14837000" />
       <workItem from="1620902608647" duration="2858000" />
+      <workItem from="1620994220986" duration="604000" />
     </task>
     <servers />
   </component>

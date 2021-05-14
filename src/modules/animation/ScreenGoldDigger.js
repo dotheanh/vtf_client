@@ -20,23 +20,23 @@ var ScreenGoldDigger = cc.Layer.extend({
         this._super();
         var size = cc.director.getVisibleSize();
 
-        // var btnPlayIdle = gv.commonButton(100, 34, size.width - 80, size.height - 52,"Idle");
-        // btnPlayIdle.setTitleFontSize(15);
-        // this.addChild(btnPlayIdle);
-        // btnPlayIdle.addClickEventListener(this.testPlayAnimation.bind(this));   // testPlayAnimation: stop animation
+        // add background
+        this.background = cc.Sprite.create("assests/game/images/background-sheet0.png");
+        this.background.setScale(size.width/this.background.getContentSize().width)
+        this.background.attr({
+            x: size.width/2,
+            y: size.height/2
+        });
+        this.background.setLocalZOrder(0);
+        this.addChild(this.background);
+
+        // SCALE RATE
+        this.SCALE_RATE = size.width/this.background.getContentSize().width
 
         var btnGenerate = gv.commonButton(100, 34, size.width - 80, size.height - 52,"Generate");
         btnGenerate.setTitleFontSize(15);
         this.addChild(btnGenerate);
         btnGenerate.addClickEventListener(this.generateItem.bind(this));
-        // var btn_change_display = gv.commonButton(200, 64, size.width - 120, size.height - 220,"Change display");
-        // btn_change_display.setTitleFontSize(28);
-        // this.addChild(btn_change_display);
-        // btn_change_display.addClickEventListener(this.testChangeDisplayOnBone.bind(this));
-
-        // var btn_test_load = gv.commonButton(200, 64, size.width - 120, size.height - 304,"Test load ani");
-        // this.addChild(btn_test_load);
-        // btn_test_load.addClickEventListener(this.testLoadAnimation.bind(this));
         
 
         var btnReset = gv.commonButton(100, 34, 70, size.height - 30,"Reset");
@@ -47,24 +47,23 @@ var ScreenGoldDigger = cc.Layer.extend({
 
         var xPos = (size.width - 220)/2;
         this.score = 0;
-        this.scoreBox = gv.commonText(fr.Localization.text("0"), size.width*2/3, size.height-size.height/8);
+        this.scoreBox = gv.commonText(fr.Localization.text("0"), size.width*1/6, size.height-size.height/6);
         this.addChild(this.scoreBox);
 
-        this.countdownBox = gv.commonText(fr.Localization.text("01:00"), size.width*1/6, size.height-size.height/8);
-        //countdown.setTitleFontSize(15);
+        this.countdownBox = gv.commonText(fr.Localization.text("01:00"), size.width*1/6, size.height-size.height/10);
         this.addChild(this.countdownBox);
 
-        this.nodeAnimation = new cc.Node();
-        this.nodeAnimation.setPosition(xPos, size.height - size.height*0.2);    // vị trí nhân vật character
-		this.nodeAnimation.setScaleX(-1);
-        this.addChild(this.nodeAnimation);
+        // add character
+        this.character = cc.Sprite.create("assests/game/images/excavator-sheet0.png", cc.rect(0,0,512,180));
+        this.character.attr({
+            x: xPos,
+            y: size.height - size.height*0.24
+        });
+        this.character.setAnchorPoint(0,0.5);
+        this.addChild(this.character);
 
-        this.character = null;
-        // this.lblResult = new cc.LabelBMFont("",res.FONT_BITMAP_DICE_NUMBER);
-
-        // this.lblResult.setAnchorPoint(0.5,0.5);
-        // this.lblResult.retain();
-        this.testPlayAnimation();
+        //this.character = null;
+        //this.testPlayAnimation();
         this.schedule(this.update);
     },
     onEnter:function(){
@@ -84,7 +83,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         fr.view(ScreenGoldDigger);
     },
     update: function (dt){
-        //console.log("update: " + dt);    // mỗi khi màn hình được vẽ lại thì hàm này được gọi => tính toán vị trí, tọa độ
+        // mỗi khi màn hình được vẽ lại thì hàm này được gọi => tính toán vị trí, tọa độ
         if (this.claw != null) {
             this.angle = 270-this.claw.getRotation();
         }
@@ -102,93 +101,60 @@ var ScreenGoldDigger = cc.Layer.extend({
             })
         }
     },
-    testAnimationBinding:function()
-    {
-        if(this.character)
-            this.character.removeFromParent();
-        this.character = fr.createAnimationById(resAniId.chipu,this);
-        this.nodeAnimation.addChild(this.character);
-        this.character.setPosition(cc.p(0,0));
-        this.character.setScale(2);
-        this.character.getAnimation().gotoAndPlay("win_0_",-1,-1,1);
-        this.character.setCompleteListener(function () {
-            this.testAnimationBinding();
-        }.bind(this));
-
-    },
-    testPlayAnimation:function()
-    {
-        if(this.character)
-            this.character.removeFromParent(true);
-
-        this.character = fr.createAnimationById(resAniId.chipu,this);
-        //doi mau, yeu cau phai co file shader, nhung bone co ten bat dau tu color_ se bi doi mau
-        this.character.setBaseColor(255,255,0);
-        //chinh toc do play animation
-        this.character.getAnimation().setTimeScale(0.5);
-        this.nodeAnimation.addChild(this.character);
-        //play animation gotoAndPlay(animationName, fadeInTime, duration, playTimes)
-        this.character.getAnimation().gotoAndPlay("idle_0_",-1);
-
-    },
-    testFinishAnimationEvent:function()
-    {
-        if(this.character)
-            this.character.removeFromParent();
-        this.character = fr.createAnimationById(resAniId.chipu,this);
-        this.nodeAnimation.addChild(this.character);
-        this.character.getAnimation().gotoAndPlay("win_0_",-1,-1,1);
-        this.character.setCompleteListener(this.onFinishAnimations.bind(this));
-        
-        this.onThrowClaw();
-    },
-    // testChangeDisplayOnBone:function()
+    // testAnimationBinding:function()
     // {
     //     if(this.character)
     //         this.character.removeFromParent();
-    //     this.character = fr.createAnimationById(resAniId.eff_dice_number,this);
+    //     this.character = fr.createAnimationById(resAniId.chipu,this);
     //     this.nodeAnimation.addChild(this.character);
-    //     this.lblResult.removeFromParent();
-    //     this.character.getArmature().getCCSlot("2").setDisplayImage(this.lblResult);
-    //     var number = 2 + cc.random0To1()*10;
-    //     this.lblResult.setString(Math.floor(number).toString());
-    //     this.lblResult.retain();
-    //     this.character.getAnimation().gotoAndPlay("run",0);
+    //     this.character.setPosition(cc.p(0,0));
+    //     this.character.setScale(2);
+    //     this.character.getAnimation().gotoAndPlay("win_0_",-1,-1,1);
+    //     this.character.setCompleteListener(function () {
+    //         this.testAnimationBinding();
+    //     }.bind(this));
 
     // },
-    // testLoadAnimation:function()
+    // testPlayAnimation:function()
     // {
-    //     var testCount = 100;
-    //     var start = Date.now();
+    //     if(this.character)
+    //         this.character.removeFromParent(true);
 
-    //     for(var i = 0; i< testCount; i++)
-    //     {
-    //         var ani  = fr.createAnimationById(resAniId.firework_test,this);
-    //         this.addChild(ani);
-    //         ani.setPosition(cc.random0To1()*cc.winSize.width, cc.random0To1()*cc.winSize.height);
-    //         ani.getAnimation().gotoAndPlay("run",cc.random0To1()*5,-1,1);
-    //         ani.setCompleteListener(this.onFinishEffect.bind(this));
-    //     }
-    //     var end = Date.now();
-    //     cc.log("time: " + (end - start));
-    //     this.lblLog.setString("time: " + (end - start));
+    //     this.character = fr.createAnimationById(resAniId.chipu,this);
+    //     //doi mau, yeu cau phai co file shader, nhung bone co ten bat dau tu color_ se bi doi mau
+    //     this.character.setBaseColor(255,255,0);
+    //     //chinh toc do play animation
+    //     this.character.getAnimation().setTimeScale(0.5);
+    //     this.nodeAnimation.addChild(this.character);
+    //     //play animation gotoAndPlay(animationName, fadeInTime, duration, playTimes)
+    //     this.character.getAnimation().gotoAndPlay("idle_0_",-1);
+
     // },
+    throwClaw:function()
+    {
+        // if(this.character)
+        //     this.character.removeFromParent();
+        // this.character = fr.createAnimationById(resAniId.chipu,this);
+        // this.nodeAnimation.addChild(this.character);
+        // this.character.getAnimation().gotoAndPlay("win_0_",-1,-1,1);
+        // this.character.setCompleteListener(this.onFinishAnimations.bind(this));
+        
+        this.onThrowClaw();
+    },
 
-    onFinishAnimations:function()
-    {
-        this.character.getAnimation().gotoAndPlay("idle_0_",0);
-    },
-    onFinishEffect:function(animation)
-    {
-        animation.removeFromParent();
-    },
+    // onFinishAnimations:function()
+    // {
+    //     this.character.getAnimation().gotoAndPlay("idle_0_",0);
+    // },
+    // onFinishEffect:function(animation)
+    // {
+    //     animation.removeFromParent();
+    // },
     generateItem:function()
     {
         // hiện móc câu
         let scrSize = cc.director.getVisibleSize();
-        this.claw = cc.Sprite.create("assests/game/animation/golddigger/claw2.png");
-        let clawType = randomInt(1, 6);
-        this.claw = cc.Sprite.create("assests/game/animation/golddigger/claw"+clawType+".png");
+        this.claw = cc.Sprite.create("assests/game/images/hook-sheet0.png");
         this.initClawX = (scrSize.width - 220)/2;
         this.initClawY = scrSize.height - scrSize.height*0.21;
         this.claw.attr({
@@ -212,17 +178,25 @@ var ScreenGoldDigger = cc.Layer.extend({
         for(var i = 0; i < itemsCount; i++)
         {
             let item;
-            let itemType = randomInt(1, 8);
+            let itemType = randomInt(1, 17);
             switch (itemType) {
-                case 1: item = cc.Sprite.create("assests/game/animation/golddigger/rock20.png"); break;
-                case 2: item = cc.Sprite.create("assests/game/animation/golddigger/rock50.png"); break;
-                //case 3: item = cc.Sprite.create("assests/game/animation/golddigger/rock100.png"); break;
-                case 3: item = cc.Sprite.create("assests/game/animation/golddigger/gold50.png"); break;
-                case 4: item = cc.Sprite.create("assests/game/animation/golddigger/gold20.png"); break;
-                case 5: item = cc.Sprite.create("assests/game/animation/golddigger/gold50.png"); break;
-                case 6: item = cc.Sprite.create("assests/game/animation/golddigger/gold80.png"); break;
-                case 7: item = cc.Sprite.create("assests/game/animation/golddigger/diamond20.png"); break;
-                case 8: item = cc.Sprite.create("assests/game/animation/golddigger/diamond50.png"); break;
+                case 1: item = cc.Sprite.create("assests/game/images/gold_01-sheet0.png"); break;
+                case 2: item = cc.Sprite.create("assests/game/images/gold_02-sheet0.png"); break;
+                case 3: item = cc.Sprite.create("assests/game/images/gold_03-sheet0.png"); break;
+                case 4: item = cc.Sprite.create("assests/game/images/gold_05-sheet0.png"); break;
+                case 5: item = cc.Sprite.create("assests/game/images/gold_10-sheet0.png"); break;
+                case 6: item = cc.Sprite.create("assests/game/images/rock_01-sheet0.png"); break;
+                case 7: item = cc.Sprite.create("assests/game/images/rock_04-sheet0.png"); break;
+                case 8: item = cc.Sprite.create("assests/game/images/rock_07-sheet0.png"); break;
+                case 9: item = cc.Sprite.create("assests/game/images/rock_10-sheet0.png"); break;
+                case 10: item = cc.Sprite.create("assests/game/images/bonus-sheet0.png"); break;
+                case 11: item = cc.Sprite.create("assests/game/images/bonusbomb-sheet0.png"); break;
+                case 12: item = cc.Sprite.create("assests/game/images/jewel_01-sheet0.png"); break;
+                case 13: item = cc.Sprite.create("assests/game/images/jewel_02-sheet0.png"); break;
+                case 14: item = cc.Sprite.create("assests/game/images/jewel_03-sheet0.png"); break;
+                case 15: item = cc.Sprite.create("assests/game/images/barrel-sheet0.png"); break;
+                case 16: item = cc.Sprite.create("assests/game/images/treasure-sheet0.png"); break;
+                case 17: item = cc.Sprite.create("assests/game/images/skull-sheet0.png"); break;
             }
             let overwrite = false;
             let randomCount = 0;
@@ -247,6 +221,7 @@ var ScreenGoldDigger = cc.Layer.extend({
                     x: newCoord.xPosition,
                     y: newCoord.yPosition 
                 });
+                item.setScale(this.SCALE_RATE);
                 this.addChild(item);
                 this.itemSprites.push(item);
             }
@@ -272,20 +247,26 @@ var ScreenGoldDigger = cc.Layer.extend({
         }, 1000);
 
         // hiển thị nút đào vàng
-        var btnTestFinishEvent = gv.commonButton(100, 34, scrSize.width - 80, scrSize.height - 132,"Dig it!");
-        btnTestFinishEvent.setTitleFontSize(15);
-        this.addChild(btnTestFinishEvent);
-        btnTestFinishEvent.addClickEventListener(this.testFinishAnimationEvent.bind(this));   // testFinishAnimationEvent: do animation
+        var btnThrowClaw = gv.commonButton(100, 34, scrSize.width - 80, scrSize.height - 132,"Dig it!");
+        btnThrowClaw.setTitleFontSize(15);
+        this.addChild(btnThrowClaw);
+        btnThrowClaw.addClickEventListener(this.throwClaw.bind(this));   // testFinishAnimationEvent: do animation
 
-        // var digScreen = new cc.Node();
-        // digScreen.attr({
+        // const cThis = this;
+        // this.digScreen = new cc.Node();
+        // this.digScreen.attr({
         //     x: 0,
         //     y: 0
         // });
-        // digScreen.setContentSize(cc.size(scrSize.width,scrSize.height - scrSize.height/2.2));
-        // digScreen.addClickEventListener(this.testFinishAnimationEvent.bind(this));   // testFinishAnimationEvent: do animation
-        // digScreen.setTag("digScreen");
-        // this.addChild(digScreen);
+        // this.digScreen.setContentSize(cc.size(scrSize.width,scrSize.height - scrSize.height/2.2));
+        // //digScreen.addClickEventListener(this.testFinishAnimationEvent.bind(this));   // testFinishAnimationEvent: do animation
+        // cc.eventManager.addListener({
+        //     event: cc.EventListener.MOUSE,
+        //     onMouseDown: function(event){
+        //         cThis.testFinishAnimationEvent.bind(cThis);
+        //     }
+        // }, cThis.digScreen);
+        // this.addChild(this.digScreen);
     },
     onThrowClaw:function()
     {
@@ -312,17 +293,14 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.rotatingAction = cc.sequence(cc.delayTime(this.absolutelyReturnClawAction.getDuration()), this.rotateAction);
         this.claw.runAction(this.absolutelyReturnClawAction);    //=> ko thể stop rotatingAction!!!!!!!!
         this.claw.runAction(this.rotatingAction);
-        //this.rotatingAction.setTag(100);
-
-        //cc.sequence(this.claw.runAction(this.absolutelyReturnClawAction),this.claw.runAction(this.rotatingAction));
     },
     checkTouchItem: function(item){
         let x = this.claw.getPositionX();
         let y = this.claw.getPositionY();
         let itemX = item.getPositionX();
         let itemY = item.getPositionY();
-        let itemWidth = item.getContentSize().height/2;
-        let itemHeight = item.getContentSize().width/2;
+        let itemWidth = item.getBoundingBox().height/2;
+        let itemHeight = item.getBoundingBox().width/2;
         return ((itemX - itemWidth <= x && x <= itemX + itemWidth) && (itemY - itemHeight <= y && y <= itemY + itemHeight));
     }
 
