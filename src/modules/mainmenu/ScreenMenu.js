@@ -57,10 +57,10 @@ var ScreenMenu = cc.Layer.extend({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
             onTouchBegan: function(touch, event){
                 // start button area
-                let x1 = cThis.scrSize.width/2 - cThis.btnStart.getContentSize().width/2;
-                let x2 = cThis.scrSize.width/2 + cThis.btnStart.getContentSize().width/2;
-                let y1 = (cThis.scrSize.height/2 - cThis.scrSize.height/7) - cThis.btnStart.getContentSize().height/2;
-                let y2 = (cThis.scrSize.height/2 - cThis.scrSize.height/7) + cThis.btnStart.getContentSize().height/2;
+                let x1 = cThis.btnStart.getPositionX() - cThis.btnStart.getBoundingBox().width/2;
+                let x2 = cThis.btnStart.getPositionX() + cThis.btnStart.getBoundingBox().width/2;
+                let y1 = cThis.btnStart.getPositionY() - cThis.btnStart.getBoundingBox().height/2;
+                let y2 = cThis.btnStart.getPositionY() + cThis.btnStart.getBoundingBox().height/2;
                 // check if touched in button area
                 if (x1 < touch.getLocation().x && touch.getLocation().x < x2 && y1 < touch.getLocation().y && touch.getLocation().y < y2) {
                     cThis.onStart();

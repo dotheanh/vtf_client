@@ -142,7 +142,7 @@ var ScreenGoldDigger = cc.Layer.extend({
     isMouseDown:false,
 
     ctor:function() {
-        this.gameState = 0; // not started: 0, playing: 1, game over: 2, level passed: 3
+        this.gameState = 0; // not started: 0, playing: 1, game over: 2, level passed: 3, paused: -1
         this.claw = null;
         this.itemSprites = [];
         this._super();
@@ -218,6 +218,19 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.countdownBox = gv.commonText(this.countdown, this.scrSize.width-this.scrSize.width/9, this.scrSize.height - this.scrSize.height/6.7);
         this.addChild(this.countdownBox);
 
+        // pause button
+        this.btnPause = cc.Sprite.create("assests/game/images/buttonpause-sheet0.png");
+        this.btnPause.setScale(this.SCALE_RATE);
+        this.btnPause.attr({ x: this.scrSize.width-this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/4 });
+        this.btnPause.setLocalZOrder(5);
+        this.addChild(this.btnPause);
+        // resume button
+        this.btnResume = cc.Sprite.create("assests/game/images/buttonpause-sheet1.png");
+        this.btnResume.setScale(this.SCALE_RATE);
+        this.btnResume.attr({ x: this.scrSize.width-this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/4 });
+        this.btnResume.setLocalZOrder(5);
+        this.btnResume.setVisible(false);
+        this.addChild(this.btnResume);
 
         var xPos = (this.scrSize.width - 220)/2
         // add character
@@ -433,18 +446,19 @@ var ScreenGoldDigger = cc.Layer.extend({
         const cThis = this;
         cThis.countdown = cThis.countdown - 1;
         var interval = setInterval(function () {
-            cThis.countdownBox.setString(cThis.countdown);
-
-            if (--cThis.countdown < 0) {
-                if (cThis.score < cThis.target) {
-                    // Todo: game over
-                    cThis.onGameOver();
+            if (cThis.gameState === 1) {
+                cThis.countdownBox.setString(cThis.countdown);
+                if (--cThis.countdown < 0) {
+                    if (cThis.score < cThis.target) {
+                        // Todo: game over
+                        cThis.onGameOver();
+                    }
+                    else {
+                        // Todo: level passed
+                        cThis.onLevelPassed();
+                    }
+                    clearInterval(interval);
                 }
-                else {
-                    // Todo: level passed
-                    cThis.onLevelPassed();
-                }
-                clearInterval(interval);
             }
         }, 1000);
     },
@@ -464,6 +478,17 @@ var ScreenGoldDigger = cc.Layer.extend({
                     if (40 < touch.getLocation().x && touch.getLocation().x < cThis.scrSize.width-40 && 40 < touch.getLocation().y && touch.getLocation().y < cThis.scrSize.height - cThis.scrSize.height/2.2) {
                         cThis.throwClaw();
                     }
+                    else {
+                        // pause button area
+                        let x1 = cThis.btnPause.getPositionX() - cThis.btnPause.getBoundingBox().width/2;
+                        let x2 = cThis.btnPause.getPositionX() + cThis.btnPause.getBoundingBox().width/2;
+                        let y1 = cThis.btnPause.getPositionY() - cThis.btnPause.getBoundingBox().height/2;
+                        let y2 = cThis.btnPause.getPositionY() + cThis.btnPause.getBoundingBox().height/2;
+                        // check if touched in button area
+                        if (x1 < touch.getLocation().x && touch.getLocation().x < x2 && y1 < touch.getLocation().y && touch.getLocation().y < y2) {
+                            cThis.onPaused();
+                        }
+                    }
                 }
                 else if (cThis.gameState === 2) {
                     // back to menu
@@ -475,6 +500,17 @@ var ScreenGoldDigger = cc.Layer.extend({
                     // back to menu
                     if (40 < touch.getLocation().x && touch.getLocation().x < cThis.scrSize.width-40 && 40 < touch.getLocation().y && touch.getLocation().y < cThis.scrSize.height - cThis.scrSize.height/2.2) {
                         fr.view(ScreenMenu);
+                    }
+                }
+                else if (cThis.gameState === -1) {   // pausing
+                    // resume button area
+                    let x1 = cThis.btnResume.getPositionX() - cThis.btnResume.getBoundingBox().width/2;
+                    let x2 = cThis.btnResume.getPositionX() + cThis.btnResume.getBoundingBox().width/2;
+                    let y1 = cThis.btnResume.getPositionY() - cThis.btnResume.getBoundingBox().height/2;
+                    let y2 = cThis.btnResume.getPositionY() + cThis.btnResume.getBoundingBox().height/2;
+                    // check if touched in button area
+                    if (x1 < touch.getLocation().x && touch.getLocation().x < x2 && y1 < touch.getLocation().y && touch.getLocation().y < y2) {
+                        cThis.onResumed();
                     }
                 }
                 return true;
@@ -602,6 +638,26 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.addChild(this.txtYouWon);
         this.txtYouWon.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),3));
         // Todo: disable playing, high score or new game
+    },
+    onPaused: function() {
+        this.btnResume.setVisible(true);
+        this.btnPause.setVisible(false);
+        this.gameState = -1;
+        //this.runningAction_Claw = this.claw..pauseTarget();
+        // text Paused
+        this.txtPaused = cc.Sprite.create("assests/game/images/textpaused-sheet0.png");
+        this.txtPaused.setScale(this.SCALE_RATE);
+        this.txtPaused.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 - this.scrSize.height/7 });
+        this.txtPaused.setLocalZOrder(5);
+        this.addChild(this.txtPaused);
+        this.txtPaused.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),10));
+    },
+    onResumed: function() {
+        this.btnResume.setVisible(false);
+        this.btnPause.setVisible(true);
+        this.gameState = 1;
+        this.removeChild(this.txtPaused,true)
+        //this.runningAction_Claw = this.claw.resumeTarget();
     }
 
 });
