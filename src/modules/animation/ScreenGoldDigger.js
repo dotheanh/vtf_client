@@ -356,8 +356,15 @@ var ScreenGoldDigger = cc.Layer.extend({
                     itemType: itemType
                 });
             }
-
         }
+        // add some mole
+        let moleCount = randomInt(1, 5);
+        for (let i = 1; i <= moleCount; i++) {
+            let mole_x = randomInt(40, this.scrSize.width-40);
+            let mole_y = randomInt(40, this.scrSize.height - this.scrSize.height/2.2);
+            this.addMoleAnimation(mole_x, mole_y);
+        }
+        // Todo: touchable mole
 
     },
     startCountDown:function() {
@@ -484,6 +491,32 @@ var ScreenGoldDigger = cc.Layer.extend({
 		//run action
         const cThis = this;
 		this._sprite_explosion.runAction(cc.sequence(action_animate_1,cc.callFunc(()=>{cThis.removeChild(cThis._sprite_explosion,true)})));
+    },
+    addMoleAnimation:function(x, y)
+    {
+        console.log(x);console.log(y);
+        cc.spriteFrameCache.addSpriteFrames(mole_res.mole_plist, mole_res.mole_png);
+		var _sprite_mole = new cc.Sprite("#mole_1.png");
+        _sprite_mole.setPosition(x, y);
+		_sprite_mole.anchorX = 0.5;
+		_sprite_mole.anchorY = 0.5;
+		_sprite_mole.setScale(this.SCALE_RATE);
+		this.addChild(_sprite_mole);
+		
+		//load anim info from plist file
+		cc.animationCache.addAnimations(mole_res.mole_anim);
+		var mole_animation_1 = cc.animationCache.getAnimation("run");
+		//create animate action
+		var action_animate_2 = cc.animate(mole_animation_1);
+		//run action
+        const cThis = this;
+        let zOrder = randomInt(-1, 5);
+        let time = randomInt(5, 15);
+        _sprite_mole.setLocalZOrder(zOrder);
+		_sprite_mole.runAction(cc.repeat(action_animate_2, 10000)); // hardcod8
+        t = (cThis.scrSize.width - x)/80;
+        var moveToRight = cc.moveTo(t, cThis.scrSize.width + 10, y);
+	    _sprite_mole.runAction(cc.sequence(moveToRight, cc.repeat(cc.sequence(cc.flipX(true), cc.moveTo(time, -10, y),cc.flipX(false), cc.moveTo(time, cThis.scrSize.width + 10, y)), 10)));
     },
     onGameOver: function() {
         this.gameState = 2;

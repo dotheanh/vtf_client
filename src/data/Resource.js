@@ -79,3 +79,8 @@ var explosion_res = {
 	e_png : "res/game/animation/barrier_explode/e.png",
 	explosion_anim : "res/game/animation/barrier_explode/explosion_anim.plist",
 };
+var mole_res = {
+	mole_plist : "res/game/animation/mole_run/mole.plist",
+	mole_png : "res/game/animation/mole_run/mole.png",
+	mole_anim : "res/game/animation/mole_run/mole_anim.plist",
+};
