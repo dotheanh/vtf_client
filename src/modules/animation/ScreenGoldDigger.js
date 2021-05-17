@@ -275,7 +275,11 @@ var ScreenGoldDigger = cc.Layer.extend({
                     }
                     else {
                         item.sprite.runAction(cc.moveTo(t*1.15, this.initClawX, this.initClawY));
-                        this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{item.sprite.getParent().removeChild(item.sprite,true);}),cc.callFunc(()=>{this.scoreBox.setString(this.score)})));
+                        this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,
+                        cc.callFunc(this.onNormalReturnClaw, this), // trả móc câu về chỗ cũ
+                        cc.callFunc(()=>{this.shiningItem();}), // hiệu ứng lóe sáng
+                        cc.callFunc(()=>{item.sprite.getParent().removeChild(item.sprite,true);}), // xóa item đi
+                        cc.callFunc(()=>{this.scoreBox.setString(this.score)})));   // cập nhật điểm
                         this.itemSprites.splice(index, 1);
                     }
                 }
@@ -285,6 +289,16 @@ var ScreenGoldDigger = cc.Layer.extend({
     throwClaw:function()
     {
         this.onThrowClaw();
+    },  
+    shiningItem:function()
+    {
+        this.shining = cc.Sprite.create("assests/game/images/sunrays-sheet0.png");
+        this.shining.setScale(this.SCALE_RATE/2);
+        this.shining.attr({ x: this.initClawX, y: this.initClawY - this.initClawY/12 });
+        this.shining.setLocalZOrder(3);
+        this.addChild(this.shining);
+        this.shining.runAction(cc.sequence(cc.repeat(cc.sequence(cc.scaleBy(0.25, 1.5),cc.scaleBy(0.25, 2/3)),2), 
+        cc.callFunc(()=>{this.removeChild(this.shining,true);})));
     },   
     onStartGame:function()
     {
