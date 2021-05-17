@@ -209,10 +209,16 @@ var ScreenGoldDigger = cc.Layer.extend({
                     let v = getItemSpeed(item.itemType);
                     let t = distance/v;
                     this.absolutelyReturnClawAction = cc.moveTo(t, this.initClawX, this.initClawY); /// khai báp trùng lặp
-                    item.sprite.runAction(cc.moveTo(t+0.5, this.initClawX, this.initClawY));
                     this.score = this.score + getItemValue(item.itemType);
-                    this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{item.sprite.getParent().removeChild(item.sprite,true);}),cc.callFunc(()=>{this.scoreBox.setString(this.score)})));
-                    this.itemSprites.splice(index, 1);
+                    if (item.itemType === 15) {
+                        this.explosion(item.sprite, this);
+                        this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{this.scoreBox.setString(this.score)})));
+                    }
+                    else {
+                        item.sprite.runAction(cc.moveTo(t*1.15, this.initClawX, this.initClawY));
+                        this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{item.sprite.getParent().removeChild(item.sprite,true);}),cc.callFunc(()=>{this.scoreBox.setString(this.score)})));
+                        this.itemSprites.splice(index, 1);
+                    }
                 }
             })
         }
@@ -301,6 +307,7 @@ var ScreenGoldDigger = cc.Layer.extend({
                 });
                 item.setScale(this.SCALE_RATE);
                 this.addChild(item);
+                item.anchorX = 0.5;item.anchorY = 0.5;
                 this.itemSprites.push({
                     sprite: item,
                     itemType: itemType
@@ -368,6 +375,18 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.claw.runAction(this.absolutelyReturnClawAction);
         this.claw.runAction(this.rotatingAction);
     },
+    explosion: function(spriteBomb, thisCursor) {
+        spriteBomb.anchorX = 0.5;spriteBomb.anchorY = 0.5;
+        explosionCenter_x = spriteBomb.getPositionX();
+        explosionCenter_y = spriteBomb.getPositionY();
+        thisCursor.itemSprites.forEach((item, index) => {
+            let distance = thisCursor.calDistance(explosionCenter_x, explosionCenter_y, item.sprite.getPositionX(), item.sprite.getPositionY());
+            if ( distance - item.sprite.getBoundingBox().width/2 < 200) {   // item nằm trong bán kính nổ
+                item.sprite.getParent().removeChild(item.sprite,true);
+                thisCursor.itemSprites.splice(index, 1);
+            }
+        })
+    },
     checkTouchItem: function(item){
         let x = this.claw.getPositionX();
         let y = this.claw.getPositionY();
@@ -375,7 +394,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         let itemY = item.getPositionY();
         let itemWidth = item.getBoundingBox().height/1.3;
         let itemHeight = item.getBoundingBox().width/1.3;
-        return ((itemX - itemWidth <= x && x <= itemX + itemWidth) && (itemY - itemHeight <= y && y <= itemY + itemHeight));
+        return ((itemX - itemWidth/2 <= x && x <= itemX + itemWidth/2) && (itemY - itemHeight/2 <= y && y <= itemY + itemHeight/2));
     },
     calDistance: function(x1, y1, x2, y2) {
         let deltaX = x1 - x2;
