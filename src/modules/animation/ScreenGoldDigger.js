@@ -8,49 +8,49 @@ const MAX_ITEMS_COUNT = 80; // MAX_ITEMS_COUNT = 80 số lượng item tối đa
 const MIN_MOLES = 2;    // MIN_MOLES = 2 số lượng chuột tối thiểu trong màn chơi
 const MAX_MOLES = 7;    // MAX_MOLES = 7 số lượng chuột tối đa trong màn chơi
 const CABLE_SEGMENT_LENGTH = 2; // CABLE_SEGMENT_LENGTH = 2 độ dài mỗi đơn vị dây cáp
-
-const itemsData = [
-    {
+const ITEMS_LIST = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]; // list những item có thể xuất hiện trong level này
+const ITEMS_DATA = [
+    {   // vàng 1
         itemType: 1,
         itemValue: 10,
         itemSpeed: 120,
     },
-    {
+    {   // vàng 2
         itemType: 2,
         itemValue: 20,
         itemSpeed: 110,
     },
-    {
+    {   // vàng 3
         itemType: 3,
         itemValue: 30,
         itemSpeed: 100,
     },
-    {
+    {   // vàng 5
         itemType: 4,
         itemValue: 50,
         itemSpeed: 80,
     },
-    {
+    {   // vàng 10
         itemType: 5,
         itemValue: 100,
         itemSpeed: 60,
     },
-    {
+    {   // đá 1
         itemType: 6,
         itemValue: 5,
         itemSpeed: 100,
     },
-    {
+    {   // đá 4
         itemType: 7,
         itemValue: 10,
         itemSpeed: 80,
     },
-    {
+    {   // đá 7
         itemType: 8,
         itemValue: 15,
         itemSpeed: 60,
     },
-    {
+    {   // đá 10
         itemType: 9,
         itemValue: 20,
         itemSpeed: 50,
@@ -60,37 +60,37 @@ const itemsData = [
         itemValue: -1,  // return random
         itemSpeed: 80,
     },
-    {
+    {   // bonus bomb
         itemType: 11,
         itemValue: 0,
         itemSpeed: 100,
     },
-    {
+    {   // jewel 1
         itemType: 12,
         itemValue: 100,
         itemSpeed: 150,
     },
-    {
+    {   // jewel 2
         itemType: 13,
         itemValue: 110,
         itemSpeed: 150,
     },
-    {
+    {   // jewel 3
         itemType: 14,
         itemValue: 120,
         itemSpeed: 150,
     },
-    {
+    {   // barrel
         itemType: 15,
         itemValue: 10,
         itemSpeed: 120,
     },
-    {
+    {   // treasure
         itemType: 16,
         itemValue: 180,
         itemSpeed: 60,
     },
-    {
+    {   // skull
         itemType: 17,
         itemValue: 20,
         itemSpeed: 120,
@@ -110,7 +110,7 @@ function randomInt(min, max) { // min and max included
 
 function getItemSpeed(itemType) {
     let speed = 0;
-    itemsData.every(function(item, index) {
+    ITEMS_DATA.every(function(item, index) {
         if (item.itemType === itemType) {
             speed = item.itemSpeed;
             return false;
@@ -125,7 +125,7 @@ function getItemValue(itemType) {
     }
     else {
         let value = 0;
-        itemsData.every(function(item, index) {
+        ITEMS_DATA.every(function(item, index) {
             if (item.itemType === itemType) {
                 value = item.itemValue;
                 return false;
@@ -139,6 +139,15 @@ function calDistance(x1, y1, x2, y2) {
     let deltaX = x1 - x2;
     let deltaY = y1 - y2;
     return Math.sqrt(deltaX*deltaX + deltaY*deltaY);
+}
+function checkClickButton(touch, button) {
+    // button area
+    let x1 = button.getPositionX() - button.getBoundingBox().width/2;
+    let x2 = button.getPositionX() + button.getBoundingBox().width/2;
+    let y1 = button.getPositionY() - button.getBoundingBox().height/2;
+    let y2 = button.getPositionY() + button.getBoundingBox().height/2;
+    // check if touched in button area
+    return (x1 < touch.getLocation().x && touch.getLocation().x < x2 && y1 < touch.getLocation().y && touch.getLocation().y < y2)
 }
 
 var ScreenGoldDigger = cc.Layer.extend({
@@ -244,6 +253,19 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.btnResume.setLocalZOrder(5);
         this.btnResume.setVisible(false);
         this.addChild(this.btnResume);
+        // mute button
+        this.btnMute = cc.Sprite.create("assests/game/images/buttonsound-sheet0.png");
+        this.btnMute.setScale(this.SCALE_RATE*0.8);
+        this.btnMute.attr({ x: this.scrSize.width-this.scrSize.width/10, y: this.scrSize.height - this.scrSize.height/4 });
+        this.btnMute.setLocalZOrder(5);
+        this.addChild(this.btnMute);
+        // unmute button
+        this.btnUnmute = cc.Sprite.create("assests/game/images/buttonsound-sheet1.png");
+        this.btnUnmute.setScale(this.SCALE_RATE*0.8);
+        this.btnUnmute.attr({ x: this.scrSize.width-this.scrSize.width/10, y: this.scrSize.height - this.scrSize.height/4 });
+        this.btnUnmute.setLocalZOrder(5);
+        this.btnUnmute.setVisible(false);
+        this.addChild(this.btnUnmute);
 
         var xPos = (this.scrSize.width - 220)/2
         // add character
@@ -300,13 +322,25 @@ var ScreenGoldDigger = cc.Layer.extend({
                         this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{this.scoreBox.setString(this.score)})));
                     }
                     else if (item.itemType === 18) {
-                        //item.sprite.stopAction(this.moleRunAction);
+                        this.checkSystemAndPlaySound("mole");
                         item.sprite.stopActionByTag(10) // cho chuột ngừng chạy
                         item.sprite.runAction(cc.moveTo(t*1.15, this.initClawX, this.initClawY));
                         this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{item.sprite.getParent().removeChild(item.sprite,true);}),cc.callFunc(()=>{this.scoreBox.setString(this.score)})));
                         this.itemSprites.splice(index, 1);
                     }
                     else {
+                        switch (item.itemType) {
+                            case 1: case 2: case 3: case 4: case 5:
+                                this.checkSystemAndPlaySound("gold");
+                                break;
+                            case 6: case 7: case 8: case 9:
+                                this.checkSystemAndPlaySound("rock");
+                                break;
+                            case 10: this.checkSystemAndPlaySound("score"); break;
+                            case 12:case 13:case 14: this.checkSystemAndPlaySound("jewel"); break;
+                            case 16: this.checkSystemAndPlaySound("treasure"); break;
+                            case 17: this.checkSystemAndPlaySound("bone"); break;
+                        }
                         item.sprite.runAction(cc.moveTo(t*1.15, this.initClawX, this.initClawY));
                         this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,
                         cc.callFunc(this.onNormalReturnClaw, this), // trả móc câu về chỗ cũ
@@ -349,6 +383,7 @@ var ScreenGoldDigger = cc.Layer.extend({
     },  
     shiningItem:function(itemValue)
     {
+        this.checkSystemAndPlaySound("bonus"); // "score"
         this.itemValueBox.setString("+$" + itemValue);
         this.shining = cc.Sprite.create("assests/game/images/sunrays-sheet0.png");
         this.shining.setScale(this.SCALE_RATE/2);
@@ -393,7 +428,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         for(var i = 0; i < itemsCount; i++)
         {
             let item;
-            let itemType = randomInt(1, 17);
+            let itemType = ITEMS_LIST[Math.floor(Math.random() * ITEMS_LIST.length)];   // lấy ra item type ngẫu nhiên trong list
             switch (itemType) {
                 case 1: item = cc.Sprite.create("assests/game/images/gold_01-sheet0.png"); break;
                 case 2: item = cc.Sprite.create("assests/game/images/gold_02-sheet0.png"); break;
@@ -481,6 +516,12 @@ var ScreenGoldDigger = cc.Layer.extend({
         cc.eventManager.addListener({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
             onTouchBegan: function(touch, event){
+                if (checkClickButton(touch, cThis.btnMute) && cThis.sound === true) {
+                    cThis.onMuted();
+                } else if (checkClickButton(touch, cThis.btnUnmute) && cThis.sound === false) {
+                    cThis.onUnmuted();
+                };
+
                 if (cThis.gameState === 0) {
                     // start the game
                     cThis.checkSystemAndPlaySound("taptoplay");
@@ -493,15 +534,9 @@ var ScreenGoldDigger = cc.Layer.extend({
                         cThis.throwClaw();
                     }
                     else {
-                        // pause button area
-                        let x1 = cThis.btnPause.getPositionX() - cThis.btnPause.getBoundingBox().width/2;
-                        let x2 = cThis.btnPause.getPositionX() + cThis.btnPause.getBoundingBox().width/2;
-                        let y1 = cThis.btnPause.getPositionY() - cThis.btnPause.getBoundingBox().height/2;
-                        let y2 = cThis.btnPause.getPositionY() + cThis.btnPause.getBoundingBox().height/2;
-                        // check if touched in button area
-                        if (x1 < touch.getLocation().x && touch.getLocation().x < x2 && y1 < touch.getLocation().y && touch.getLocation().y < y2) {
+                        if (checkClickButton(touch, cThis.btnPause)) {
                             cThis.onPaused();
-                        }
+                        };
                     }
                 }
                 else if (cThis.gameState === 2) {
@@ -518,14 +553,9 @@ var ScreenGoldDigger = cc.Layer.extend({
                 }
                 else if (cThis.gameState === -1) {   // pausing
                     // resume button area
-                    let x1 = cThis.btnResume.getPositionX() - cThis.btnResume.getBoundingBox().width/2;
-                    let x2 = cThis.btnResume.getPositionX() + cThis.btnResume.getBoundingBox().width/2;
-                    let y1 = cThis.btnResume.getPositionY() - cThis.btnResume.getBoundingBox().height/2;
-                    let y2 = cThis.btnResume.getPositionY() + cThis.btnResume.getBoundingBox().height/2;
-                    // check if touched in button area
-                    if (x1 < touch.getLocation().x && touch.getLocation().x < x2 && y1 < touch.getLocation().y && touch.getLocation().y < y2) {
+                    if (checkClickButton(touch, cThis.btnResume)) {
                         cThis.onResumed();
-                    }
+                    };
                 }
                 return true;
             },
@@ -658,10 +688,11 @@ var ScreenGoldDigger = cc.Layer.extend({
         // Todo: disable playing, high score or new game
     },
     onPaused: function() {
+        this.checkSystemAndPlaySound("button");
         this.btnResume.setVisible(true);
         this.btnPause.setVisible(false);
         this.gameState = -1;
-        //this.runningAction_Claw = this.claw..pauseTarget();
+        //this.runningAction_Claw = this.claw.pauseTarget();
         // text Paused
         this.txtPaused = cc.Sprite.create("assests/game/images/textpaused-sheet0.png");
         this.txtPaused.setScale(this.SCALE_RATE);
@@ -671,11 +702,23 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.txtPaused.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),10));
     },
     onResumed: function() {
+        this.checkSystemAndPlaySound("button");
         this.btnResume.setVisible(false);
         this.btnPause.setVisible(true);
         this.gameState = 1;
         this.removeChild(this.txtPaused,true)
         //this.runningAction_Claw = this.claw.resumeTarget();
+    },
+    onMuted: function() {
+        this.sound = false;
+        this.btnUnmute.setVisible(true);
+        this.btnMute.setVisible(false);
+    },
+    onUnmuted: function() {
+        this.sound = true;
+        this.checkSystemAndPlaySound("button");
+        this.btnUnmute.setVisible(false);
+        this.btnMute.setVisible(true);
     },
     checkSystemAndPlaySound: function(soundName, isLoop = false) {
         let soundFile_ogg = "assests/game/media/" + soundName + ".ogg";

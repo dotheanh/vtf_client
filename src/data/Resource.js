@@ -85,7 +85,7 @@ var mole_res = {
 	mole_anim : "res/game/animation/mole_run/mole_anim.plist",
 };
 var sound_res = {   // not use
-	bone_ogg : "assests/game/media/bonus.ogg",
+	bone_ogg : "assests/game/media/bone.ogg",
 	bonus_ogg : "assests/game/media/bonus.ogg",
 	button_ogg : "assests/game/media/button.ogg",
 	cable_ogg : "assests/game/media/cable.ogg",
@@ -104,7 +104,7 @@ var sound_res = {   // not use
 	timeover_ogg : "assests/game/media/timeover.ogg",
 	treasure_ogg : "assests/game/media/treasure.ogg",
 
-	bone_m4a : "assests/game/media/bonus.m4a",
+	bone_m4a : "assests/game/media/bone.m4a",
 	bonus_m4a : "assests/game/media/bonus.m4a",
 	button_m4a : "assests/game/media/button.m4a",
 	cable_m4a : "assests/game/media/cable.m4a",
@@ -123,7 +123,7 @@ var sound_res = {   // not use
 	timeover_m4a : "assests/game/media/timeover.m4a",
 	treasure_m4a : "assests/game/media/treasure.m4a",
     
-	bone_mp3 : "assests/game/media/bonus.mp3",
+	bone_mp3 : "assests/game/media/bone.mp3",
 	bonus_mp3 : "assests/game/media/bonus.mp3",
 	button_mp3 : "assests/game/media/button.mp3",
 	cable_mp3 : "assests/game/media/cable.mp3",
