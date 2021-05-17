@@ -174,8 +174,11 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.character.setAnchorPoint(0,0.5);
         this.addChild(this.character);
 
-        //this.character = null;
-        //this.testPlayAnimation();
+        this.nodeAnimation = new cc.Node();
+        this.nodeAnimation.setPosition(xPos, this.scrSize.height*0.5);
+		this.nodeAnimation.setScaleX(-1);///
+        this.addChild(this.nodeAnimation);
+        this.explodeAnimation = null;
         this.schedule(this.update);
     },
     onEnter:function(){
@@ -262,21 +265,21 @@ var ScreenGoldDigger = cc.Layer.extend({
         for(var i = 0; i < itemsCount; i++)
         {
             let item;
-            let itemType = randomInt(1, 17);
+            let itemType = randomInt(14, 17);
             switch (itemType) {
-                case 1: item = cc.Sprite.create("assests/game/images/gold_01-sheet0.png"); break;
-                case 2: item = cc.Sprite.create("assests/game/images/gold_02-sheet0.png"); break;
-                case 3: item = cc.Sprite.create("assests/game/images/gold_03-sheet0.png"); break;
-                case 4: item = cc.Sprite.create("assests/game/images/gold_05-sheet0.png"); break;
-                case 5: item = cc.Sprite.create("assests/game/images/gold_10-sheet0.png"); break;
-                case 6: item = cc.Sprite.create("assests/game/images/rock_01-sheet0.png"); break;
-                case 7: item = cc.Sprite.create("assests/game/images/rock_04-sheet0.png"); break;
-                case 8: item = cc.Sprite.create("assests/game/images/rock_07-sheet0.png"); break;
-                case 9: item = cc.Sprite.create("assests/game/images/rock_10-sheet0.png"); break;
-                case 10: item = cc.Sprite.create("assests/game/images/bonus-sheet0.png"); break;
-                case 11: item = cc.Sprite.create("assests/game/images/bonusbomb-sheet0.png"); break;
-                case 12: item = cc.Sprite.create("assests/game/images/jewel_01-sheet0.png"); break;
-                case 13: item = cc.Sprite.create("assests/game/images/jewel_02-sheet0.png"); break;
+                // case 1: item = cc.Sprite.create("assests/game/images/gold_01-sheet0.png"); break;
+                // case 2: item = cc.Sprite.create("assests/game/images/gold_02-sheet0.png"); break;
+                // case 3: item = cc.Sprite.create("assests/game/images/gold_03-sheet0.png"); break;
+                // case 4: item = cc.Sprite.create("assests/game/images/gold_05-sheet0.png"); break;
+                // case 5: item = cc.Sprite.create("assests/game/images/gold_10-sheet0.png"); break;
+                // case 6: item = cc.Sprite.create("assests/game/images/rock_01-sheet0.png"); break;
+                // case 7: item = cc.Sprite.create("assests/game/images/rock_04-sheet0.png"); break;
+                // case 8: item = cc.Sprite.create("assests/game/images/rock_07-sheet0.png"); break;
+                // case 9: item = cc.Sprite.create("assests/game/images/rock_10-sheet0.png"); break;
+                // case 10: item = cc.Sprite.create("assests/game/images/bonus-sheet0.png"); break;
+                // case 11: item = cc.Sprite.create("assests/game/images/bonusbomb-sheet0.png"); break;
+                // case 12: item = cc.Sprite.create("assests/game/images/jewel_01-sheet0.png"); break;
+                // case 13: item = cc.Sprite.create("assests/game/images/jewel_02-sheet0.png"); break;
                 case 14: item = cc.Sprite.create("assests/game/images/jewel_03-sheet0.png"); break;
                 case 15: item = cc.Sprite.create("assests/game/images/barrel-sheet0.png"); break;
                 case 16: item = cc.Sprite.create("assests/game/images/treasure-sheet0.png"); break;
@@ -376,9 +379,11 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.claw.runAction(this.rotatingAction);
     },
     explosion: function(spriteBomb, thisCursor) {
+        // do explosion animate
         spriteBomb.anchorX = 0.5;spriteBomb.anchorY = 0.5;
         explosionCenter_x = spriteBomb.getPositionX();
         explosionCenter_y = spriteBomb.getPositionY();
+        thisCursor.doExplodeAnimation(explosionCenter_x, explosionCenter_y);
         thisCursor.itemSprites.forEach((item, index) => {
             let distance = thisCursor.calDistance(explosionCenter_x, explosionCenter_y, item.sprite.getPositionX(), item.sprite.getPositionY());
             if ( distance - item.sprite.getBoundingBox().width/2 < 200) {   // item nằm trong bán kính nổ
@@ -400,6 +405,16 @@ var ScreenGoldDigger = cc.Layer.extend({
         let deltaX = x1 - x2;
         let deltaY = y1 - y2;
         return Math.sqrt(deltaX*deltaX + deltaY*deltaY);
-    }
+    },
+    doExplodeAnimation:function(explosionCenter_x, explosionCenter_y)
+    {
+        if(this.explodeAnimation)
+            this.explodeAnimation.removeFromParent();
+        this.explodeAnimation = fr.createAnimationById(resAniId.barrier_explode,this);
+        this.nodeAnimation.setPosition(explosionCenter_x, explosionCenter_y);
+        this.nodeAnimation.addChild(this.explodeAnimation);
+        this.explodeAnimation.getAnimation().gotoAndPlay("explode",-1,-1,1);
+        this.explodeAnimation.setCompleteListener(this.checkTouchItem.bind(this));
+    },
 
 });
