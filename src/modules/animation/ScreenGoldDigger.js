@@ -2,7 +2,11 @@
  * Created by GSN on 7/9/2015.
  */
 
-const duration = 60*1;
+const TARGET = 800; // 800
+const DURATION = 60*1;  // 60
+const MAX_ITEMS_COUNT = 80; // 80
+const MIN_MOLES = 2;    // 2
+const MAX_MOLES = 7;    // 7
 
 const itemsData = [
     {
@@ -89,6 +93,11 @@ const itemsData = [
         itemType: 17,
         itemValue: 20,
         itemSpeed: 120,
+    },
+    {   // mole
+        itemType: 18,
+        itemValue: 10,
+        itemSpeed: 150,
     },
 ];
 
@@ -192,8 +201,8 @@ var ScreenGoldDigger = cc.Layer.extend({
         // init values for level
         this.level = 1;
         this.score = 0;
-        this.target = 100;  // 800
-        this.countdown = 10;    // 60
+        this.target = TARGET;  // 800
+        this.countdown = DURATION;    // 60
         this.levelBox = gv.commonText(this.level, this.scrSize.width/10, this.scrSize.height - this.scrSize.height/6.7);
         this.addChild(this.levelBox);
         this.targetBox = gv.commonText(this.target, this.scrSize.width-this.scrSize.width/8, this.scrSize.height - this.scrSize.height/19);
@@ -257,6 +266,13 @@ var ScreenGoldDigger = cc.Layer.extend({
                         this.explosion(item.sprite, this);
                         this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{this.scoreBox.setString(this.score)})));
                     }
+                    else if (item.itemType === 18) {
+                        //item.sprite.stopAction(this.moleRunAction);
+                        item.sprite.stopActionByTag(10) // cho chuột ngừng chạy
+                        item.sprite.runAction(cc.moveTo(t*1.15, this.initClawX, this.initClawY));
+                        this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{item.sprite.getParent().removeChild(item.sprite,true);}),cc.callFunc(()=>{this.scoreBox.setString(this.score)})));
+                        this.itemSprites.splice(index, 1);
+                    }
                     else {
                         item.sprite.runAction(cc.moveTo(t*1.15, this.initClawX, this.initClawY));
                         this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{item.sprite.getParent().removeChild(item.sprite,true);}),cc.callFunc(()=>{this.scoreBox.setString(this.score)})));
@@ -300,7 +316,7 @@ var ScreenGoldDigger = cc.Layer.extend({
     generateItem:function()
     {
         // generate random gold and diamond
-        let itemsCount = 80;
+        let itemsCount = MAX_ITEMS_COUNT;
         let itemsCoord = []; // ghi lại tọa độ các item đã tồn tại để tránh trùng tọa độ
         for(var i = 0; i < itemsCount; i++)
         {
@@ -358,7 +374,7 @@ var ScreenGoldDigger = cc.Layer.extend({
             }
         }
         // add some mole
-        let moleCount = randomInt(1, 5);
+        let moleCount = randomInt(MIN_MOLES, MAX_MOLES);
         for (let i = 1; i <= moleCount; i++) {
             let mole_x = randomInt(40, this.scrSize.width-40);
             let mole_y = randomInt(40, this.scrSize.height - this.scrSize.height/2.2);
@@ -494,7 +510,6 @@ var ScreenGoldDigger = cc.Layer.extend({
     },
     addMoleAnimation:function(x, y)
     {
-        console.log(x);console.log(y);
         cc.spriteFrameCache.addSpriteFrames(mole_res.mole_plist, mole_res.mole_png);
 		var _sprite_mole = new cc.Sprite("#mole_1.png");
         _sprite_mole.setPosition(x, y);
@@ -510,13 +525,20 @@ var ScreenGoldDigger = cc.Layer.extend({
 		var action_animate_2 = cc.animate(mole_animation_1);
 		//run action
         const cThis = this;
-        let zOrder = randomInt(-1, 5);
         let time = randomInt(5, 15);
-        _sprite_mole.setLocalZOrder(zOrder);
-		_sprite_mole.runAction(cc.repeat(action_animate_2, 10000)); // hardcod8
+        _sprite_mole.setLocalZOrder(10);
+		_sprite_mole.runAction(cc.repeat(action_animate_2, 10000)); // hardcode
         t = (cThis.scrSize.width - x)/80;
         var moveToRight = cc.moveTo(t, cThis.scrSize.width + 10, y);
-	    _sprite_mole.runAction(cc.sequence(moveToRight, cc.repeat(cc.sequence(cc.flipX(true), cc.moveTo(time, -10, y),cc.flipX(false), cc.moveTo(time, cThis.scrSize.width + 10, y)), 10)));
+        cThis.moleRunAction = cc.sequence(moveToRight, cc.repeat(cc.sequence(cc.flipX(true), cc.moveTo(time, -10, y),cc.flipX(false), cc.moveTo(time, cThis.scrSize.width + 10, y)), 10));
+        cThis.moleRunAction.retain();   // not released yet
+        cThis.moleRunAction.setTag(10);
+	    _sprite_mole.runAction(cThis.moleRunAction);
+        
+        cThis.itemSprites.push({
+            sprite: _sprite_mole,
+            itemType: 18
+        });
     },
     onGameOver: function() {
         this.gameState = 2;
