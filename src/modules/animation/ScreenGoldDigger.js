@@ -127,6 +127,7 @@ var ScreenGoldDigger = cc.Layer.extend({
     isMouseDown:false,
 
     ctor:function() {
+        this.gameState = 0; // not started: 0, playing: 1, game over: 2, level passed: 3
         this.claw = null;
         this.itemSprites = [];
         this._super();
@@ -143,26 +144,67 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.background.setLocalZOrder(0);
         this.addChild(this.background);
 
-        var btnGenerate = gv.commonButton(100, 34, this.scrSize.width - 80, this.scrSize.height - 52,"Generate");
-        btnGenerate.setTitleFontSize(15);
-        this.addChild(btnGenerate);
-        btnGenerate.addClickEventListener(this.onStartGame.bind(this));
+        // btn Tap to play
+        this.playTxt = cc.Sprite.create("assests/game/images/texttaptoplay-sheet0.png");
+        this.playTxt.setScale(this.SCALE_RATE*1.5);
+        this.playTxt.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 - this.scrSize.height/7 });
+        this.playTxt.setLocalZOrder(5);
+        this.addChild(this.playTxt);
+        this.playTxt.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),3));
 
+        // add click listener to start game
+        this.addClickListener();
 
-        var btnReset = gv.commonButton(100, 34, 70, this.scrSize.height - 30,"Reset");
-        btnReset.setTitleFontSize(15);
-        this.addChild(btnReset);
-        btnReset.addClickEventListener(this.onSelectReset.bind(this));
-
-
-        var xPos = (this.scrSize.width - 220)/2;
+        // add money, level, target, countdown box
+        this.leftGuiframe = cc.Sprite.create("assests/game/images/guiframe-sheet0.png");
+        this.leftGuiframe.setScale(this.SCALE_RATE);
+        this.leftGuiframe.attr({ x: this.scrSize.width/7, y: this.scrSize.height - this.scrSize.height/5 });
+        this.addChild(this.leftGuiframe);
+        this.rightGuiframe = cc.Sprite.create("assests/game/images/guiframe-sheet0.png");
+        this.rightGuiframe.setScale(this.SCALE_RATE);
+        this.rightGuiframe.attr({ x: this.scrSize.width - this.scrSize.width/7, y: this.scrSize.height - this.scrSize.height/5 });
+        this.rightGuiframe.runAction(cc.flipX(true));
+        this.addChild(this.rightGuiframe);
+        //money icon
+        this.moneyIcon = cc.Sprite.create("assests/game/images/guiscore-sheet0.png");
+        this.moneyIcon.setScale(this.SCALE_RATE);
+        this.moneyIcon.attr({ x: this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/19 });
+        this.moneyIcon.setLocalZOrder(5);
+        this.addChild(this.moneyIcon);
+        //star icon
+        this.starIcon = cc.Sprite.create("assests/game/images/guilevel-sheet0.png");
+        this.starIcon.setScale(this.SCALE_RATE);
+        this.starIcon.attr({ x: this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/6.7 });
+        this.starIcon.setLocalZOrder(5);
+        this.addChild(this.starIcon);
+        //target icon
+        this.targetIcon = cc.Sprite.create("assests/game/images/guitarget-sheet0.png");
+        this.targetIcon.setScale(this.SCALE_RATE);
+        this.targetIcon.attr({ x: this.scrSize.width-this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/19 });
+        this.targetIcon.setLocalZOrder(5);
+        this.addChild(this.targetIcon);
+        //time icon
+        this.timeIcon = cc.Sprite.create("assests/game/images/guitime-sheet0.png");
+        this.timeIcon.setScale(this.SCALE_RATE);
+        this.timeIcon.attr({ x: this.scrSize.width-this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/6.7 });
+        this.timeIcon.setLocalZOrder(5);
+        this.addChild(this.timeIcon);
+        // init values for level
+        this.level = 1;
         this.score = 0;
-        this.scoreBox = gv.commonText(fr.Localization.text("0"), this.scrSize.width*1/6, this.scrSize.height-this.scrSize.height/6);
+        this.target = 800;
+        this.countdown = 60;
+        this.levelBox = gv.commonText(this.level, this.scrSize.width/10, this.scrSize.height - this.scrSize.height/6.7);
+        this.addChild(this.levelBox);
+        this.targetBox = gv.commonText(this.target, this.scrSize.width-this.scrSize.width/8, this.scrSize.height - this.scrSize.height/19);
+        this.addChild(this.targetBox);
+        this.scoreBox = gv.commonText(this.score, this.scrSize.width/9, this.scrSize.height - this.scrSize.height/19);
         this.addChild(this.scoreBox);
-
-        this.countdownBox = gv.commonText(fr.Localization.text("01:00"), this.scrSize.width*1/6, this.scrSize.height-this.scrSize.height/10);
+        this.countdownBox = gv.commonText(this.countdown, this.scrSize.width-this.scrSize.width/9, this.scrSize.height - this.scrSize.height/6.7);
         this.addChild(this.countdownBox);
 
+
+        var xPos = (this.scrSize.width - 220)/2
         // add character
         this.character = cc.Sprite.create("assests/game/images/excavator-sheet0.png", cc.rect(0,0,512,180));
         this.character.attr({
@@ -233,7 +275,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.initTheClaw();
         this.generateItem();
         this.startCountDown();
-        this.addMiningListener();
+        this.gameState = 1;
     },
     initTheClaw:function() {
         // hiện móc câu
@@ -319,32 +361,34 @@ var ScreenGoldDigger = cc.Layer.extend({
 
     },
     startCountDown:function() {
-        // hiển thị thời gian đếm ngược
-        var timer = duration, minutes, seconds;
-        const countdownBox = this.countdownBox;
+        const cThis = this;
+        cThis.countdown = 59;
         setInterval(function () {
-            minutes = parseInt(timer / 60, 10);
-            seconds = parseInt(timer % 60, 10);
+            cThis.countdownBox.setString(cThis.countdown);
 
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-
-            countdownBox.setString(minutes + ":" + seconds);
-
-            if (--timer < 0) {
-                countdownBox.setString("TIME OUT");
+            if (--cThis.countdown < 0) {
+                cThis.countdownBox.setString("TIME OUT");
+                cThis.gameState = 2;
+                // Todo: game over
             }
         }, 1000);
     },
-    addMiningListener:function() {
+    addClickListener:function() {
         // add event listener for layer
         const cThis = this;
         cc.eventManager.addListener({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
             onTouchBegan: function(touch, event){
-                // check if touched in mining area
-                if (40 < touch.getLocation().x && touch.getLocation().x < cThis.scrSize.width-40 && 40 < touch.getLocation().y && touch.getLocation().y < cThis.scrSize.height - cThis.scrSize.height/2.2) {
-                    cThis.throwClaw();
+                if (cThis.gameState === 0) {
+                    // start the game
+                    cThis.removeChild(cThis.playTxt,true);
+                    cThis.onStartGame();
+                }
+                else if (cThis.gameState === 1) {
+                    // check if touched in mining area
+                    if (40 < touch.getLocation().x && touch.getLocation().x < cThis.scrSize.width-40 && 40 < touch.getLocation().y && touch.getLocation().y < cThis.scrSize.height - cThis.scrSize.height/2.2) {
+                        cThis.throwClaw();
+                    }
                 }
                 return true;
             },
