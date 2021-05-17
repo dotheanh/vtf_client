@@ -14,6 +14,9 @@ var ScreenMenu = cc.Layer.extend({
 
     ctor:function() {
         this._super();
+        this.sound = true;
+        cc.audioEngine.setMusicVolume(0.7);
+        this.checkSystemAndPlaySound("gamemusic", true);
         this.scrSize = cc.director.getVisibleSize();
         // add background
         this.background = cc.Sprite.create("assests/game/images/background-sheet0.png");
@@ -75,6 +78,7 @@ var ScreenMenu = cc.Layer.extend({
     },
     onStart:function(sender)
     {
+        this.checkSystemAndPlaySound("button");
         fr.view(ScreenGoldDigger);
     },
     generateItem:function()
@@ -124,6 +128,12 @@ var ScreenMenu = cc.Layer.extend({
             }
 
         }
+    },
+    checkSystemAndPlaySound: function(soundName, isLoop = false) {
+        let soundFile_ogg = "assests/game/media/" + soundName + ".ogg";
+        let soundFile_mp3 = "assests/game/media/" + soundName + ".mp3";
+        if (this.sound)
+            cc.audioEngine.playMusic(cc.sys.os == cc.sys.OS_WP8 || cc.sys.os == cc.sys.OS_WINRT ? soundFile_ogg : soundFile_mp3, isLoop);
     }
 
 });

@@ -147,6 +147,7 @@ var ScreenGoldDigger = cc.Layer.extend({
     isMouseDown:false,
 
     ctor:function() {
+        this.sound = true;
         this.gameState = 0; // not started: 0, playing: 1, game over: 2, level passed: 3, paused: -1
         this.claw = null;
         this.itemSprites = [];
@@ -482,6 +483,7 @@ var ScreenGoldDigger = cc.Layer.extend({
             onTouchBegan: function(touch, event){
                 if (cThis.gameState === 0) {
                     // start the game
+                    cThis.checkSystemAndPlaySound("taptoplay");
                     cThis.removeChild(cThis.playTxt,true);
                     cThis.onStartGame();
                 }
@@ -532,6 +534,7 @@ var ScreenGoldDigger = cc.Layer.extend({
     },
     onThrowClaw:function()
     {
+        this.checkSystemAndPlaySound("cable");
         this.ableToTouchItem = true;
         // di chuyển móc câu
         let radian = this.angle/360 * 2 * Math.PI;
@@ -539,8 +542,10 @@ var ScreenGoldDigger = cc.Layer.extend({
         let deltaY = Math.sin(radian)*this.scrSize.width/1.2;
         this.claw.stopAction(this.rotatingAction);
         this.throwClawAction = cc.moveBy(2, deltaX, deltaY);
-        this.normalClawCycle = cc.sequence(this.throwClawAction, cc.callFunc(this.onNormalReturnClaw, this))
-        this.claw.runAction(this.normalClawCycle); // quăng móc và quay về
+        this.normalClawCycle = cc.sequence(this.throwClawAction,
+            cc.callFunc(()=> {this.checkSystemAndPlaySound("miss")}),
+            cc.callFunc(this.onNormalReturnClaw, this))
+        this.claw.runAction(this.normalClawCycle); // quăng móc và quay về khi ko bắt được item nào
         //this.claw.stopActionByTag(100)
     },
     onNormalReturnClaw: function(){
@@ -556,6 +561,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.claw.runAction(this.rotatingAction);
     },
     explosion: function(spriteBomb, thisCursor) {
+        this.checkSystemAndPlaySound("explosion");
         // do explosion animate
         spriteBomb.anchorX = 0.5;spriteBomb.anchorY = 0.5;
         explosionCenter_x = spriteBomb.getPositionX();
@@ -670,6 +676,12 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.gameState = 1;
         this.removeChild(this.txtPaused,true)
         //this.runningAction_Claw = this.claw.resumeTarget();
+    },
+    checkSystemAndPlaySound: function(soundName, isLoop = false) {
+        let soundFile_ogg = "assests/game/media/" + soundName + ".ogg";
+        let soundFile_mp3 = "assests/game/media/" + soundName + ".mp3";
+        if (this.sound)
+            cc.audioEngine.playMusic(cc.sys.os == cc.sys.OS_WP8 || cc.sys.os == cc.sys.OS_WINRT ? soundFile_ogg : soundFile_mp3, isLoop);
     }
 
 });
