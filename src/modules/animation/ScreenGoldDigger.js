@@ -192,8 +192,8 @@ var ScreenGoldDigger = cc.Layer.extend({
         // init values for level
         this.level = 1;
         this.score = 0;
-        this.target = 800;
-        this.countdown = 60;
+        this.target = 100;  // 800
+        this.countdown = 10;    // 60
         this.levelBox = gv.commonText(this.level, this.scrSize.width/10, this.scrSize.height - this.scrSize.height/6.7);
         this.addChild(this.levelBox);
         this.targetBox = gv.commonText(this.target, this.scrSize.width-this.scrSize.width/8, this.scrSize.height - this.scrSize.height/19);
@@ -362,14 +362,20 @@ var ScreenGoldDigger = cc.Layer.extend({
     },
     startCountDown:function() {
         const cThis = this;
-        cThis.countdown = 59;
-        setInterval(function () {
+        cThis.countdown = cThis.countdown - 1;
+        var interval = setInterval(function () {
             cThis.countdownBox.setString(cThis.countdown);
 
             if (--cThis.countdown < 0) {
-                cThis.countdownBox.setString("TIME OUT");
-                cThis.gameState = 2;
-                // Todo: game over
+                if (cThis.score < cThis.target) {
+                    // Todo: game over
+                    cThis.onGameOver();
+                }
+                else {
+                    // Todo: level passed
+                    cThis.onLevelPassed();
+                }
+                clearInterval(interval);
             }
         }, 1000);
     },
@@ -388,6 +394,18 @@ var ScreenGoldDigger = cc.Layer.extend({
                     // check if touched in mining area
                     if (40 < touch.getLocation().x && touch.getLocation().x < cThis.scrSize.width-40 && 40 < touch.getLocation().y && touch.getLocation().y < cThis.scrSize.height - cThis.scrSize.height/2.2) {
                         cThis.throwClaw();
+                    }
+                }
+                else if (cThis.gameState === 2) {
+                    // back to menu
+                    if (40 < touch.getLocation().x && touch.getLocation().x < cThis.scrSize.width-40 && 40 < touch.getLocation().y && touch.getLocation().y < cThis.scrSize.height - cThis.scrSize.height/2.2) {
+                        fr.view(ScreenMenu);
+                    }
+                }
+                else if (cThis.gameState === 3) {
+                    // back to menu
+                    if (40 < touch.getLocation().x && touch.getLocation().x < cThis.scrSize.width-40 && 40 < touch.getLocation().y && touch.getLocation().y < cThis.scrSize.height - cThis.scrSize.height/2.2) {
+                        fr.view(ScreenMenu);
                     }
                 }
                 return true;
@@ -467,5 +485,27 @@ var ScreenGoldDigger = cc.Layer.extend({
         const cThis = this;
 		this._sprite_explosion.runAction(cc.sequence(action_animate_1,cc.callFunc(()=>{cThis.removeChild(cThis._sprite_explosion,true)})));
     },
+    onGameOver: function() {
+        this.gameState = 2;
+        // text Game over
+        this.txtGameOver = cc.Sprite.create("assests/game/images/textgameover-sheet0.png");
+        this.txtGameOver.setScale(this.SCALE_RATE);
+        this.txtGameOver.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 - this.scrSize.height/7 });
+        this.txtGameOver.setLocalZOrder(5);
+        this.addChild(this.txtGameOver);
+        this.txtGameOver.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),3));
+        // Todo: disable playing, high score or new game
+    },
+    onLevelPassed: function() {
+        this.gameState = 3;
+        // text You Won
+        this.txtYouWon = cc.Sprite.create("assests/game/images/textyouwon-sheet0.png");
+        this.txtYouWon.setScale(this.SCALE_RATE);
+        this.txtYouWon.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 - this.scrSize.height/7 });
+        this.txtYouWon.setLocalZOrder(5);
+        this.addChild(this.txtYouWon);
+        this.txtYouWon.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),3));
+        // Todo: disable playing, high score or new game
+    }
 
 });
