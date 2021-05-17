@@ -258,7 +258,7 @@ var ScreenGoldDigger = cc.Layer.extend({
     generateItem:function()
     {
         // generate random gold and diamond
-        let itemsCount = 100;
+        let itemsCount = 80;
         let itemsCoord = []; // ghi lại tọa độ các item đã tồn tại để tránh trùng tọa độ
         for(var i = 0; i < itemsCount; i++)
         {
@@ -406,13 +406,6 @@ var ScreenGoldDigger = cc.Layer.extend({
     },
     doExplodeAnimation:function(explosionCenter_x, explosionCenter_y)
     {
-        // if(this.explodeAnimation)
-        //     this.explodeAnimation.removeFromParent();
-        // this.explodeAnimation = fr.createAnimationById(resAniId.barrier_explode,this);
-        // this.nodeAnimation.setPosition(explosionCenter_x, explosionCenter_y);
-        // this.nodeAnimation.addChild(this.explodeAnimation);
-        // this.explodeAnimation.getAnimation().gotoAndPlay("explode",-1,-1,1);
-
         cc.spriteFrameCache.addSpriteFrames(explosion_res.explosion_plist, explosion_res.e_png);
 		this._sprite_explosion = new cc.Sprite("#explosion_1.png");
         this._sprite_explosion.setPosition(explosionCenter_x, explosionCenter_y);
