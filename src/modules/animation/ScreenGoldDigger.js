@@ -4,9 +4,121 @@
 
 const duration = 60*1;
 
+const itemsData = [
+    {
+        itemType: 1,
+        itemValue: 10,
+        itemSpeed: 120,
+    },
+    {
+        itemType: 2,
+        itemValue: 20,
+        itemSpeed: 110,
+    },
+    {
+        itemType: 3,
+        itemValue: 30,
+        itemSpeed: 100,
+    },
+    {
+        itemType: 4,
+        itemValue: 50,
+        itemSpeed: 80,
+    },
+    {
+        itemType: 5,
+        itemValue: 100,
+        itemSpeed: 60,
+    },
+    {
+        itemType: 6,
+        itemValue: 5,
+        itemSpeed: 100,
+    },
+    {
+        itemType: 7,
+        itemValue: 10,
+        itemSpeed: 80,
+    },
+    {
+        itemType: 8,
+        itemValue: 15,
+        itemSpeed: 60,
+    },
+    {
+        itemType: 9,
+        itemValue: 20,
+        itemSpeed: 50,
+    },
+    {
+        itemType: 10,
+        itemValue: randomInt(50, 200),
+        itemSpeed: 80,
+    },
+    {
+        itemType: 11,
+        itemValue: 0,
+        itemSpeed: 100,
+    },
+    {
+        itemType: 12,
+        itemValue: 100,
+        itemSpeed: 150,
+    },
+    {
+        itemType: 13,
+        itemValue: 110,
+        itemSpeed: 150,
+    },
+    {
+        itemType: 14,
+        itemValue: 120,
+        itemSpeed: 150,
+    },
+    {
+        itemType: 15,
+        itemValue: 10,
+        itemSpeed: 120,
+    },
+    {
+        itemType: 16,
+        itemValue: 180,
+        itemSpeed: 60,
+    },
+    {
+        itemType: 17,
+        itemValue: 20,
+        itemSpeed: 120,
+    },
+];
+
+
 // generate random
 function randomInt(min, max) { // min and max included 
     return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function getItemSpeed(itemType) {
+    let speed = 0;
+    itemsData.every(function(item, index) {
+        if (item.itemType === itemType) {
+            speed = item.itemSpeed;
+            return false;
+        }
+        else return true;
+    })
+    return speed;
+}
+function getItemValue(itemType) {
+    let value = 0;
+    itemsData.every(function(item, index) {
+        if (item.itemType === itemType) {
+            value = item.itemValue;
+            return false;
+        }
+        else return true;
+    })
+    return value;
 }
 
 var ScreenGoldDigger = cc.Layer.extend({
@@ -89,18 +201,17 @@ var ScreenGoldDigger = cc.Layer.extend({
         }
         // Todo: check collition
         if (this.ableToTouchItem) {
-            this.itemSprites.forEach((sprite, index) => {
-                if (this.checkTouchItem(sprite)) {
+            this.itemSprites.forEach((item, index) => {
+                if (this.checkTouchItem(item.sprite)) {
                     this.ableToTouchItem = false;
                     this.claw.stopAction(this.normalClawCycle);
-                    let distance = this.calDistance(sprite.getPositionX(), sprite.getPositionY(), this.initClawX, this.initClawY);
-                    const v = 80; // tốc độ kéo lên
+                    let distance = this.calDistance(item.sprite.getPositionX(), item.sprite.getPositionY(), this.initClawX, this.initClawY);
+                    let v = getItemSpeed(item.itemType);
                     let t = distance/v;
-                    console.log("distance: " + distance);
-                    console.log("t: " + t);
                     this.absolutelyReturnClawAction = cc.moveTo(t, this.initClawX, this.initClawY); /// khai báp trùng lặp
-                    sprite.runAction(cc.moveTo(t+0.5, this.initClawX, this.initClawY));
-                    this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{sprite.getParent().removeChild(sprite,true);}),cc.callFunc(()=>{this.scoreBox.setString(++this.score)})));
+                    item.sprite.runAction(cc.moveTo(t+0.5, this.initClawX, this.initClawY));
+                    this.score = this.score + getItemValue(item.itemType);
+                    this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{item.sprite.getParent().removeChild(item.sprite,true);}),cc.callFunc(()=>{this.scoreBox.setString(this.score)})));
                     this.itemSprites.splice(index, 1);
                 }
             })
@@ -190,7 +301,10 @@ var ScreenGoldDigger = cc.Layer.extend({
                 });
                 item.setScale(this.SCALE_RATE);
                 this.addChild(item);
-                this.itemSprites.push(item);
+                this.itemSprites.push({
+                    sprite: item,
+                    itemType: itemType
+                });
             }
 
         }
@@ -234,8 +348,8 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.ableToTouchItem = true;
         // di chuyển móc câu
         let radian = this.angle/360 * 2 * Math.PI;
-        let deltaX = Math.cos(radian)*this.scrSize.width/2;
-        let deltaY = Math.sin(radian)*this.scrSize.width/2;
+        let deltaX = Math.cos(radian)*this.scrSize.width/1.2;
+        let deltaY = Math.sin(radian)*this.scrSize.width/1.2;
         this.claw.stopAction(this.rotatingAction);
         this.throwClawAction = cc.moveBy(2, deltaX, deltaY);
         this.normalClawCycle = cc.sequence(this.throwClawAction, cc.callFunc(this.onNormalReturnClaw, this))
