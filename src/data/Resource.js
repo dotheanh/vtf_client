@@ -29,7 +29,6 @@ var g_resources = [
     "game/animation/eff_dice_number/skeleton.xml",
     "game/animation/effDiceNumber/skeleton.xml",
     "game/animation/firework_test/skeleton.xml",
-    "game/animation/barrier_explode/skeleton.xml",
     "game/animation/ruongngusac/skeleton.xml",
     "game/animation/Dragon/skeleton.json",
     "game/animation/DragonBoy/skeleton.json",
@@ -55,8 +54,6 @@ var g_resources = [
     "game/animation/effDiceNumber/texture.png",
     "game/animation/firework_test/texture.plist",
     "game/animation/firework_test/texture.png",
-    "game/animation/barrier_explode/texture.plist",
-    "game/animation/barrier_explode/texture.png",
     "game/animation/ruongngusac/texture.xml",
     "game/animation/ruongngusac/texture.png",
     "game/animation/Dragon/texture.json",
@@ -75,5 +72,10 @@ var g_resources = [
     "zcsd/screen_localize.json",
     "zcsd/screen_menu.json",
     "zcsd/screen_network.json",
-    "zcsd/screen_zalo.json"
+    "zcsd/screen_zalo.json",
 ];
+var explosion_res = {
+	explosion_plist : "res/game/animation/barrier_explode/explosion.plist",
+	e_png : "res/game/animation/barrier_explode/e.png",
+	explosion_anim : "res/game/animation/barrier_explode/explosion_anim.plist",
+};

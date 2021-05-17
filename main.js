@@ -10,7 +10,7 @@ cc.game.onStart = function () {
     cc.view.enableRetina(true);
     // Adjust viewport meta
     cc.view.adjustViewPort(true);
-    //cc.view.setFrameSize(1700,1167);
+    cc.view.setFrameSize(1500,1000);
     jsb.fileUtils.addSearchPath(fr.NativeService.getFolderUpdateAssets(), true);
     jsb.fileUtils.addSearchPath(fr.NativeService.getFolderUpdateAssets() + "/res", true);
     cc.loader.resPath = "res";

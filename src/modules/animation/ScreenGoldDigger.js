@@ -131,19 +131,17 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.itemSprites = [];
         this._super();
         this.scrSize = cc.director.getVisibleSize();
-
         // add background
         this.background = cc.Sprite.create("assests/game/images/background-sheet0.png");
-        this.background.setScale(this.scrSize.width/this.background.getContentSize().width)
+        // SCALE RATE
+        this.SCALE_RATE = this.scrSize.width/this.background.getContentSize().width;
+        this.background.setScale(this.SCALE_RATE);
         this.background.attr({
             x: this.scrSize.width/2,
             y: this.scrSize.height/2
         });
         this.background.setLocalZOrder(0);
         this.addChild(this.background);
-
-        // SCALE RATE
-        this.SCALE_RATE = this.scrSize.width/this.background.getContentSize().width
 
         var btnGenerate = gv.commonButton(100, 34, this.scrSize.width - 80, this.scrSize.height - 52,"Generate");
         btnGenerate.setTitleFontSize(15);
@@ -265,21 +263,21 @@ var ScreenGoldDigger = cc.Layer.extend({
         for(var i = 0; i < itemsCount; i++)
         {
             let item;
-            let itemType = randomInt(14, 17);
+            let itemType = randomInt(1, 17);
             switch (itemType) {
-                // case 1: item = cc.Sprite.create("assests/game/images/gold_01-sheet0.png"); break;
-                // case 2: item = cc.Sprite.create("assests/game/images/gold_02-sheet0.png"); break;
-                // case 3: item = cc.Sprite.create("assests/game/images/gold_03-sheet0.png"); break;
-                // case 4: item = cc.Sprite.create("assests/game/images/gold_05-sheet0.png"); break;
-                // case 5: item = cc.Sprite.create("assests/game/images/gold_10-sheet0.png"); break;
-                // case 6: item = cc.Sprite.create("assests/game/images/rock_01-sheet0.png"); break;
-                // case 7: item = cc.Sprite.create("assests/game/images/rock_04-sheet0.png"); break;
-                // case 8: item = cc.Sprite.create("assests/game/images/rock_07-sheet0.png"); break;
-                // case 9: item = cc.Sprite.create("assests/game/images/rock_10-sheet0.png"); break;
-                // case 10: item = cc.Sprite.create("assests/game/images/bonus-sheet0.png"); break;
-                // case 11: item = cc.Sprite.create("assests/game/images/bonusbomb-sheet0.png"); break;
-                // case 12: item = cc.Sprite.create("assests/game/images/jewel_01-sheet0.png"); break;
-                // case 13: item = cc.Sprite.create("assests/game/images/jewel_02-sheet0.png"); break;
+                case 1: item = cc.Sprite.create("assests/game/images/gold_01-sheet0.png"); break;
+                case 2: item = cc.Sprite.create("assests/game/images/gold_02-sheet0.png"); break;
+                case 3: item = cc.Sprite.create("assests/game/images/gold_03-sheet0.png"); break;
+                case 4: item = cc.Sprite.create("assests/game/images/gold_05-sheet0.png"); break;
+                case 5: item = cc.Sprite.create("assests/game/images/gold_10-sheet0.png"); break;
+                case 6: item = cc.Sprite.create("assests/game/images/rock_01-sheet0.png"); break;
+                case 7: item = cc.Sprite.create("assests/game/images/rock_04-sheet0.png"); break;
+                case 8: item = cc.Sprite.create("assests/game/images/rock_07-sheet0.png"); break;
+                case 9: item = cc.Sprite.create("assests/game/images/rock_10-sheet0.png"); break;
+                case 10: item = cc.Sprite.create("assests/game/images/bonus-sheet0.png"); break;
+                case 11: item = cc.Sprite.create("assests/game/images/bonusbomb-sheet0.png"); break;
+                case 12: item = cc.Sprite.create("assests/game/images/jewel_01-sheet0.png"); break;
+                case 13: item = cc.Sprite.create("assests/game/images/jewel_02-sheet0.png"); break;
                 case 14: item = cc.Sprite.create("assests/game/images/jewel_03-sheet0.png"); break;
                 case 15: item = cc.Sprite.create("assests/game/images/barrel-sheet0.png"); break;
                 case 16: item = cc.Sprite.create("assests/game/images/treasure-sheet0.png"); break;
@@ -408,13 +406,29 @@ var ScreenGoldDigger = cc.Layer.extend({
     },
     doExplodeAnimation:function(explosionCenter_x, explosionCenter_y)
     {
-        if(this.explodeAnimation)
-            this.explodeAnimation.removeFromParent();
-        this.explodeAnimation = fr.createAnimationById(resAniId.barrier_explode,this);
-        this.nodeAnimation.setPosition(explosionCenter_x, explosionCenter_y);
-        this.nodeAnimation.addChild(this.explodeAnimation);
-        this.explodeAnimation.getAnimation().gotoAndPlay("explode",-1,-1,1);
-        this.explodeAnimation.setCompleteListener(this.checkTouchItem.bind(this));
+        // if(this.explodeAnimation)
+        //     this.explodeAnimation.removeFromParent();
+        // this.explodeAnimation = fr.createAnimationById(resAniId.barrier_explode,this);
+        // this.nodeAnimation.setPosition(explosionCenter_x, explosionCenter_y);
+        // this.nodeAnimation.addChild(this.explodeAnimation);
+        // this.explodeAnimation.getAnimation().gotoAndPlay("explode",-1,-1,1);
+
+        cc.spriteFrameCache.addSpriteFrames(explosion_res.explosion_plist, explosion_res.e_png);
+		this._sprite_explosion = new cc.Sprite("#explosion_1.png");
+        this._sprite_explosion.setPosition(explosionCenter_x, explosionCenter_y);
+		this._sprite_explosion.anchorX = 0.5;
+		this._sprite_explosion.anchorY = 0.5;
+		this._sprite_explosion.setScale(this.SCALE_RATE);
+		this.addChild(this._sprite_explosion);
+		
+		//load anim info from plist file
+		cc.animationCache.addAnimations(explosion_res.explosion_anim);
+		var explosion_animation_1 = cc.animationCache.getAnimation("explosion");
+		//create animate action
+		var action_animate_1 = cc.animate(explosion_animation_1);
+		//run action
+        const cThis = this;
+		this._sprite_explosion.runAction(cc.sequence(action_animate_1,cc.callFunc(()=>{cThis.removeChild(cThis._sprite_explosion,true)})));
     },
 
 });
