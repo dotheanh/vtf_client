@@ -2,11 +2,12 @@
  * Created by GSN on 7/9/2015.
  */
 
-const TARGET = 800; // 800
-const DURATION = 60*1;  // 60
-const MAX_ITEMS_COUNT = 80; // 80
-const MIN_MOLES = 2;    // 2
-const MAX_MOLES = 7;    // 7
+const TARGET = 800; // TARGET = 800 điểm tối thiểu để vượt qua level
+const DURATION = 60;  // DURATION = 60 thời gian countdown level 
+const MAX_ITEMS_COUNT = 80; // MAX_ITEMS_COUNT = 80 số lượng item tối đa trong màn chơi
+const MIN_MOLES = 2;    // MIN_MOLES = 2 số lượng chuột tối thiểu trong màn chơi
+const MAX_MOLES = 7;    // MAX_MOLES = 7 số lượng chuột tối đa trong màn chơi
+const CABLE_SEGMENT_LENGTH = 2; // CABLE_SEGMENT_LENGTH = 2 độ dài mỗi đơn vị dây cáp
 
 const itemsData = [
     {
@@ -129,6 +130,11 @@ function getItemValue(itemType) {
     })
     return value;
 }
+function calDistance(x1, y1, x2, y2) {
+    let deltaX = x1 - x2;
+    let deltaY = y1 - y2;
+    return Math.sqrt(deltaX*deltaX + deltaY*deltaY);
+}
 
 var ScreenGoldDigger = cc.Layer.extend({
     _itemMenu:null,
@@ -217,7 +223,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         // add character
         this.character = cc.Sprite.create("assests/game/images/excavator-sheet0.png", cc.rect(0,0,512,180));
         this.character.attr({
-            x: xPos,
+            x: xPos-10,
             y: this.scrSize.height - this.scrSize.height*0.24
         });
         this.character.setAnchorPoint(0,0.5);
@@ -229,6 +235,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.addChild(this.nodeAnimation);
         this.explodeAnimation = null;
         this.schedule(this.update);
+        this.cable = [];
     },
     onEnter:function(){
         this._super();
@@ -257,7 +264,7 @@ var ScreenGoldDigger = cc.Layer.extend({
                 if (this.checkTouchItem(item.sprite)) {
                     this.ableToTouchItem = false;
                     this.claw.stopAction(this.normalClawCycle);
-                    let distance = this.calDistance(item.sprite.getPositionX(), item.sprite.getPositionY(), this.initClawX, this.initClawY);
+                    let distance = calDistance(item.sprite.getPositionX(), item.sprite.getPositionY(), this.initClawX, this.initClawY);
                     let v = getItemSpeed(item.itemType);
                     let t = distance/v;
                     this.absolutelyReturnClawAction = cc.moveTo(t, this.initClawX, this.initClawY); /// khai báp trùng lặp
@@ -285,6 +292,30 @@ var ScreenGoldDigger = cc.Layer.extend({
                 }
             })
         }
+        // nối sợi dây cáp
+        if (this.claw) {
+            deltaX = this.initClawX - this.claw.getPositionX();
+            deltaY = this.initClawY - this.claw.getPositionY();
+            let dist = calDistance(this.claw.getPositionX(), this.claw.getPositionY(), this.initClawX, this.initClawY);
+            let cableCount = dist/CABLE_SEGMENT_LENGTH;
+            for (let i = 0; i < cableCount; i++) {
+                var cableSegment = cc.Sprite.create("assests/game/images/cable.png");
+                //cableSegment.setScale(this.SCALE_RATE);
+                cableSegment.attr({ x: this.initClawX-i*deltaX/cableCount, y: this.initClawY-i*deltaY/cableCount });
+                this.addChild(cableSegment);
+                this.cable.push(cableSegment);
+            }
+            this.cable.forEach((cableSegment,index) => {
+                if (calDistance(cableSegment.getPositionX(),cableSegment.getPositionY(),this.initClawX,this.initClawY)
+                +calDistance(cableSegment.getPositionX(),cableSegment.getPositionY(),this.claw.getPositionX(),this.claw.getPositionY())
+                !==  dist
+                ) {
+                    this.cable.splice(index, 1);
+                    this.removeChild(cableSegment,true);
+                }
+            })
+        }
+
     },
     throwClaw:function()
     {
@@ -311,7 +342,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         // hiện móc câu
         this.claw = cc.Sprite.create("assests/game/images/hook-sheet0.png");
         this.initClawX = (this.scrSize.width - 220)/2;
-        this.initClawY = this.scrSize.height - this.scrSize.height*0.21;
+        this.initClawY = this.scrSize.height - this.scrSize.height*0.16;
         this.claw.attr({
             x: this.initClawX,
             y: this.initClawY
@@ -320,6 +351,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.claw.setLocalZOrder(10);
         this.addChild(this.claw);
 
+        // đưa móc câu vào quỹ đạo quay
         let angle = 180;
         var initRotateClaw = cc.rotateBy(0, 90);
         var rotateClawLR = cc.rotateBy(2, -angle);
@@ -482,7 +514,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         explosionCenter_y = spriteBomb.getPositionY();
         thisCursor.doExplodeAnimation(explosionCenter_x, explosionCenter_y);
         thisCursor.itemSprites.forEach((item, index) => {
-            let distance = thisCursor.calDistance(explosionCenter_x, explosionCenter_y, item.sprite.getPositionX(), item.sprite.getPositionY());
+            let distance = calDistance(explosionCenter_x, explosionCenter_y, item.sprite.getPositionX(), item.sprite.getPositionY());
             if ( distance - item.sprite.getBoundingBox().width/2 < 200) {   // item nằm trong bán kính nổ
                 item.sprite.getParent().removeChild(item.sprite,true);
                 thisCursor.itemSprites.splice(index, 1);
@@ -497,11 +529,6 @@ var ScreenGoldDigger = cc.Layer.extend({
         let itemWidth = item.getBoundingBox().height/1.3;
         let itemHeight = item.getBoundingBox().width/1.3;
         return ((itemX - itemWidth/2 <= x && x <= itemX + itemWidth/2) && (itemY - itemHeight/2 <= y && y <= itemY + itemHeight/2));
-    },
-    calDistance: function(x1, y1, x2, y2) {
-        let deltaX = x1 - x2;
-        let deltaY = y1 - y2;
-        return Math.sqrt(deltaX*deltaX + deltaY*deltaY);
     },
     doExplodeAnimation:function(explosionCenter_x, explosionCenter_y)
     {
