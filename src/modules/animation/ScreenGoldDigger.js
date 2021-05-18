@@ -656,14 +656,14 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.btnResume.setVisible(true);
         this.btnPause.setVisible(false);
         this.gameState = -1;
-        //this.runningAction_Claw = this.claw.pauseTarget();
         // text Paused
         this.txtPaused = cc.Sprite.create("assests/game/images/textpaused-sheet0.png");
         this.txtPaused.setScale(this.SCALE_RATE);
         this.txtPaused.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 - this.scrSize.height/7 });
-        this.txtPaused.setLocalZOrder(5);
+        this.txtPaused.setLocalZOrder(15);
         this.addChild(this.txtPaused);
         this.txtPaused.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),10));
+        cc.director.pause();
     },
     onResumed: function() {
         this.checkSystemAndPlaySound("button");
@@ -671,7 +671,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.btnPause.setVisible(true);
         this.gameState = 1;
         this.removeChild(this.txtPaused,true)
-        //this.runningAction_Claw = this.claw.resumeTarget();
+        cc.director.resume();
     },
     onMuted: function() {
         this.sound = false;
