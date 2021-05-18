@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e4d55f2b-12a8-484d-a811-f49e89a3e91c" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/res/game/animation/barrier_explode/skeleton.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/res/game/animation/barrier_explode/texture.plist" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/res/game/animation/barrier_explode/texture.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/data/Resource.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/data/Resource.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/LevelManager.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/config/Level.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project.json" beforeDir="false" afterPath="$PROJECT_DIR$/project.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/modules/animation/ScreenGoldDigger.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/modules/animation/ScreenGoldDigger.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -691,6 +691,7 @@
       <workItem from="1620902608647" duration="2858000" />
       <workItem from="1620994220986" duration="604000" />
       <workItem from="1621245712610" duration="599000" />
+      <workItem from="1621306555988" duration="614000" />
     </task>
     <servers />
   </component>

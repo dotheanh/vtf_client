@@ -2,105 +2,7 @@
  * Created by GSN on 7/9/2015.
  */
 
-const TARGET = 800; // TARGET = 800 điểm tối thiểu để vượt qua level
-const DURATION = 60;  // DURATION = 60 thời gian countdown level 
-const MAX_ITEMS_COUNT = 80; // MAX_ITEMS_COUNT = 80 số lượng item tối đa trong màn chơi
-const MIN_MOLES = 2;    // MIN_MOLES = 2 số lượng chuột tối thiểu trong màn chơi
-const MAX_MOLES = 7;    // MAX_MOLES = 7 số lượng chuột tối đa trong màn chơi
-const CABLE_SEGMENT_LENGTH = 2; // CABLE_SEGMENT_LENGTH = 2 độ dài mỗi đơn vị dây cáp
-const ITEMS_LIST = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]; // list những item có thể xuất hiện trong level này
-const ITEMS_DATA = [
-    {   // vàng 1
-        itemType: 1,
-        itemValue: 10,
-        itemSpeed: 120,
-    },
-    {   // vàng 2
-        itemType: 2,
-        itemValue: 20,
-        itemSpeed: 110,
-    },
-    {   // vàng 3
-        itemType: 3,
-        itemValue: 30,
-        itemSpeed: 100,
-    },
-    {   // vàng 5
-        itemType: 4,
-        itemValue: 50,
-        itemSpeed: 80,
-    },
-    {   // vàng 10
-        itemType: 5,
-        itemValue: 100,
-        itemSpeed: 60,
-    },
-    {   // đá 1
-        itemType: 6,
-        itemValue: 5,
-        itemSpeed: 100,
-    },
-    {   // đá 4
-        itemType: 7,
-        itemValue: 10,
-        itemSpeed: 80,
-    },
-    {   // đá 7
-        itemType: 8,
-        itemValue: 15,
-        itemSpeed: 60,
-    },
-    {   // đá 10
-        itemType: 9,
-        itemValue: 20,
-        itemSpeed: 50,
-    },
-    {   // mystery bag
-        itemType: 10,
-        itemValue: -1,  // return random
-        itemSpeed: 80,
-    },
-    {   // bonus bomb
-        itemType: 11,
-        itemValue: 0,
-        itemSpeed: 100,
-    },
-    {   // jewel 1
-        itemType: 12,
-        itemValue: 100,
-        itemSpeed: 150,
-    },
-    {   // jewel 2
-        itemType: 13,
-        itemValue: 110,
-        itemSpeed: 150,
-    },
-    {   // jewel 3
-        itemType: 14,
-        itemValue: 120,
-        itemSpeed: 150,
-    },
-    {   // barrel
-        itemType: 15,
-        itemValue: 10,
-        itemSpeed: 120,
-    },
-    {   // treasure
-        itemType: 16,
-        itemValue: 180,
-        itemSpeed: 60,
-    },
-    {   // skull
-        itemType: 17,
-        itemValue: 20,
-        itemSpeed: 120,
-    },
-    {   // mole
-        itemType: 18,
-        itemValue: 10,
-        itemSpeed: 150,
-    },
-];
+
 
 
 // generate random
@@ -169,12 +71,11 @@ var ScreenGoldDigger = cc.Layer.extend({
     _itemMenu:null,
     _beginPos:0,
     isMouseDown:false,
+    _levelManager:null,
 
     ctor:function() {
+        this._levelManager = new LevelManager(this);
         this.sound = true;
-        this.gameState = 0; // not started: 0, playing: 1, game over: 2, level passed: 3, paused: -1
-        this.claw = null;
-        this.itemSprites = [];
         this._super();
         this.scrSize = cc.director.getVisibleSize();
         this.initClawX = (this.scrSize.width - 220)/2;
@@ -191,16 +92,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.background.setLocalZOrder(0);
         this.addChild(this.background);
 
-        // btn Tap to play
-        this.playTxt = cc.Sprite.create("assests/game/images/texttaptoplay-sheet0.png");
-        this.playTxt.setScale(this.SCALE_RATE*1.5);
-        this.playTxt.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 - this.scrSize.height/7 });
-        this.playTxt.setLocalZOrder(5);
-        this.addChild(this.playTxt);
-        this.playTxt.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),3));
-
-        // add click listener to start game
-        this.addClickListener();
+        this.initTheGame();
 
         // add money, level, target, countdown box
         this.leftGuiframe = cc.Sprite.create("assests/game/images/guiframe-sheet0.png");
@@ -236,25 +128,55 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.timeIcon.attr({ x: this.scrSize.width-this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/6.7 });
         this.timeIcon.setLocalZOrder(5);
         this.addChild(this.timeIcon);
-        // init values for level
-        this.level = 1;
-        this.score = 0;
-        this.target = TARGET;  // 800
-        this.countdown = DURATION;    // 60
-        this.levelBox = gv.commonText(this.level, this.scrSize.width/10, this.scrSize.height - this.scrSize.height/6.7);
-        this.addChild(this.levelBox);
-        this.targetBox = gv.commonText(this.target, this.scrSize.width-this.scrSize.width/8, this.scrSize.height - this.scrSize.height/19);
-        this.addChild(this.targetBox);
-        this.scoreBox = gv.commonText(this.score, this.scrSize.width/9, this.scrSize.height - this.scrSize.height/19);
-        this.addChild(this.scoreBox);
-        this.countdownBox = gv.commonText(this.countdown, this.scrSize.width-this.scrSize.width/9, this.scrSize.height - this.scrSize.height/6.7);
-        this.addChild(this.countdownBox);
-        this.itemValueBox = gv.commonText("", this.initClawX, this.initClawY - this.initClawY/12);
-        this.itemValueBox.setTextColor(cc.color("#ffff00"));
-        this.itemValueBox.setLocalZOrder(11);
-        this.itemValueBox.setFontSize(this.scrSize.width/15);
-        this.addChild(this.itemValueBox);
 
+
+        var xPos = (this.scrSize.width - 220)/2
+        // add character
+        this.character = cc.Sprite.create("assests/game/images/excavator-sheet0.png", cc.rect(0,0,512,180));
+        this.character.attr({
+            x: xPos-10,
+            y: this.scrSize.height - this.scrSize.height*0.24
+        });
+        this.character.setAnchorPoint(0,0.5);
+        this.addChild(this.character);
+
+        this.explodeAnimation = null;
+        this.schedule(this.update);
+
+    },
+    initTheGame: function() {   // init các giá trị, hiển thị hình ảnh trước khi vào game
+        // Todo: kiểm tra tất cả sprite item, có cái nào thì remove hết ra rồi tạo lại
+        if (this.txtYouWon) this.removeChild(this.txtYouWon,true);
+        if (this.levelBox) this.removeChild(this.levelBox,true);
+        if (this.targetBox) this.removeChild(this.targetBox,true);
+        if (this.scoreBox) this.removeChild(this.scoreBox,true);
+        if (this.countdownBox) this.removeChild(this.countdownBox,true);
+        if (this.itemValueBox) this.removeChild(this.itemValueBox,true);
+        if (this.claw) this.removeChild(this.claw,true);
+        if (this.btnPause) this.removeChild(this.btnPause,true);
+        if (this.btnResume) this.removeChild(this.btnResume,true);
+        if (this.btnMute) this.removeChild(this.btnMute,true);
+        if (this.btnUnmute) this.removeChild(this.btnUnmute,true);
+
+        this.gameState = 0; // not started: 0, playing: 1, game over: 2, level passed: 3, game won: 4, paused: -1
+        this.claw = null;
+        const cThis = this;
+        if (this.itemSprites) { // nếu đã tồn tại item sprite thì xóa toàn bộ, nếu chưa có thì init null
+            this.itemSprites.forEach((item, index) => {
+                cThis.removeChild(item.sprite,true);
+                cThis.itemSprites.splice(index, 1);
+            })
+        }
+        else {
+            this.itemSprites = [];
+        }
+        // btn Tap to play
+        this.playTxt = cc.Sprite.create("assests/game/images/texttaptoplay-sheet0.png");
+        this.playTxt.setScale(this.SCALE_RATE*1.5);
+        this.playTxt.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 - this.scrSize.height/7 });
+        this.playTxt.setLocalZOrder(5);
+        this.addChild(this.playTxt);
+        this.playTxt.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),3));
         // pause button
         this.btnPause = cc.Sprite.create("assests/game/images/buttonpause-sheet0.png");
         this.btnPause.setScale(this.SCALE_RATE);
@@ -282,23 +204,40 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.btnUnmute.setVisible(false);
         this.addChild(this.btnUnmute);
 
-        var xPos = (this.scrSize.width - 220)/2
-        // add character
-        this.character = cc.Sprite.create("assests/game/images/excavator-sheet0.png", cc.rect(0,0,512,180));
-        this.character.attr({
-            x: xPos-10,
-            y: this.scrSize.height - this.scrSize.height*0.24
-        });
-        this.character.setAnchorPoint(0,0.5);
-        this.addChild(this.character);
+        cc.eventManager.removeAllListeners();
+        // add click listener to start game
+        this.addClickListener();
+        // init values for level
+        this.level = this._levelManager._currentLevelNum;
+        this.score = 0;
+        this.target = this._levelManager._currentLevel.TARGET;  // 800
+        this.countdown = this._levelManager._currentLevel.DURATION;    // 60
+        this.levelBox = gv.commonText(this.level, this.scrSize.width/10, this.scrSize.height - this.scrSize.height/6.7);
+        this.addChild(this.levelBox);
+        this.targetBox = gv.commonText(this.target, this.scrSize.width-this.scrSize.width/8, this.scrSize.height - this.scrSize.height/19);
+        this.addChild(this.targetBox);
+        this.scoreBox = gv.commonText(this.score, this.scrSize.width/9, this.scrSize.height - this.scrSize.height/19);
+        this.addChild(this.scoreBox);
+        this.countdownBox = gv.commonText(this.countdown, this.scrSize.width-this.scrSize.width/9, this.scrSize.height - this.scrSize.height/6.7);
+        this.levelBox.setLocalZOrder(5);this.targetBox.setLocalZOrder(5);this.scoreBox.setLocalZOrder(5);this.countdownBox.setLocalZOrder(5);
+        this.addChild(this.countdownBox);
+        this.itemValueBox = gv.commonText("", this.initClawX, this.initClawY - this.initClawY/12);
+        this.itemValueBox.setTextColor(cc.color("#ffff00"));
+        this.itemValueBox.setLocalZOrder(11);
+        this.itemValueBox.setFontSize(this.scrSize.width/15);
+        this.addChild(this.itemValueBox);
 
-        this.nodeAnimation = new cc.Node();
-        this.nodeAnimation.setPosition(xPos, this.scrSize.height*0.5);
-		this.nodeAnimation.setScaleX(-1);///
-        this.addChild(this.nodeAnimation);
-        this.explodeAnimation = null;
-        this.schedule(this.update);
-        this.cable = [];
+        if (this.cable) {
+            this.cable.forEach((cableSegment,index) => {
+                this.cable.splice(index, 1);
+                this.removeChild(cableSegment,true);
+            })
+        }
+        else {
+            this.cable = [];
+        }
+
+
     },
     onEnter:function(){
         this._super();
@@ -306,11 +245,6 @@ var ScreenGoldDigger = cc.Layer.extend({
     onRemoved:function()
     {
         fr.unloadAllAnimationData(this);
-    },
-    updateTest:function(dt)
-    {
-        this.nodeAnimation.setScale(0.5);
-        this.nodeAnimation.runAction(cc.scaleTo(0.5, 1.0).easing(cc.easeBounceOut()));
     },
     onSelectReset:function(sender)
     {
@@ -372,7 +306,7 @@ var ScreenGoldDigger = cc.Layer.extend({
             deltaX = this.initClawX - this.claw.getPositionX();
             deltaY = this.initClawY - this.claw.getPositionY();
             let dist = calDistance(this.claw.getPositionX(), this.claw.getPositionY(), this.initClawX, this.initClawY);
-            let cableCount = dist/CABLE_SEGMENT_LENGTH;
+            let cableCount = dist/this._levelManager._currentLevel.CABLE_SEGMENT_LENGTH;
             for (let i = 0; i < cableCount; i++) {
                 var cableSegment = cc.Sprite.create("assests/game/images/cable.png");
                 //cableSegment.setScale(this.SCALE_RATE);
@@ -440,12 +374,12 @@ var ScreenGoldDigger = cc.Layer.extend({
     generateItem:function()
     {
         // generate random gold and diamond
-        let itemsCount = MAX_ITEMS_COUNT;
+        let itemsCount = this._levelManager._currentLevel.MAX_ITEMS_COUNT;
         let itemsCoord = []; // ghi lại tọa độ các item đã tồn tại để tránh trùng tọa độ
         for(var i = 0; i < itemsCount; i++)
         {
             let item;
-            let itemType = ITEMS_LIST[Math.floor(Math.random() * ITEMS_LIST.length)];   // lấy ra item type ngẫu nhiên trong list
+            let itemType = this._levelManager._currentLevel.ITEMS_LIST[Math.floor(Math.random() * this._levelManager._currentLevel.ITEMS_LIST.length)];   // lấy ra item type ngẫu nhiên trong list
             switch (itemType) {
                 case 1: item = cc.Sprite.create("assests/game/images/gold_01-sheet0.png"); break;
                 case 2: item = cc.Sprite.create("assests/game/images/gold_02-sheet0.png"); break;
@@ -498,7 +432,7 @@ var ScreenGoldDigger = cc.Layer.extend({
             }
         }
         // add some mole
-        let moleCount = randomInt(MIN_MOLES, MAX_MOLES);
+        let moleCount = randomInt(this._levelManager._currentLevel.MIN_MOLES, this._levelManager._currentLevel.MAX_MOLES);
         for (let i = 1; i <= moleCount; i++) {
             let mole_x = randomInt(40, this.scrSize.width-40);
             let mole_y = randomInt(40, this.scrSize.height - this.scrSize.height/2.2);
@@ -563,7 +497,13 @@ var ScreenGoldDigger = cc.Layer.extend({
                     }
                 }
                 else if (cThis.gameState === 3) {
-                    // back to menu
+                    // next level
+                    if (40 < touch.getLocation().x && touch.getLocation().x < cThis.scrSize.width-40 && 40 < touch.getLocation().y && touch.getLocation().y < cThis.scrSize.height - cThis.scrSize.height/2.2) {
+                        cThis.onFinishLevel();
+                    }
+                }
+                else if (cThis.gameState === 4) {
+                    // game won, back to menu
                     if (40 < touch.getLocation().x && touch.getLocation().x < cThis.scrSize.width-40 && 40 < touch.getLocation().y && touch.getLocation().y < cThis.scrSize.height - cThis.scrSize.height/2.2) {
                         fr.view(ScreenMenu);
                     }
@@ -684,6 +624,7 @@ var ScreenGoldDigger = cc.Layer.extend({
     },
     onGameOver: function() {
         this.gameState = 2;
+        this.checkSystemAndPlaySound("gameover");
         // text Game over
         this.txtGameOver = cc.Sprite.create("assests/game/images/textgameover-sheet0.png");
         this.txtGameOver.setScale(this.SCALE_RATE);
@@ -703,6 +644,16 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.addChild(this.txtYouWon);
         this.txtYouWon.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),3));
         // Todo: disable playing, high score or new game
+    },
+    onFinishLevel: function() {
+        this._levelManager.nextLevel();
+        if (!this._levelManager._isGameEnd) {
+            this.initTheGame();
+        }
+        else {  // game won
+            this.gameState = 4;
+            this.checkSystemAndPlaySound("gamewon");
+        }
     },
     onPaused: function() {
         this.checkSystemAndPlaySound("button");
