@@ -270,7 +270,7 @@ var ScreenGoldDigger = cc.Layer.extend({
             let dist = calDistance(this.claw.getPositionX(), this.claw.getPositionY(), this.initClawX, this.initClawY);
             let cableCount = dist/this._levelManager._currentLevel.CABLE_SEGMENT_LENGTH;
             for (let i = 0; i < cableCount; i++) {
-                var cableSegment = this.addSprite("cable", this.initClawX-i*deltaX/cableCount, this.initClawY-i*deltaY/cableCount, 5);
+                var cableSegment = this.addSprite("cable", this.initClawX-i*deltaX/cableCount, this.initClawY-i*deltaY/cableCount, 5, this.SCALE_RATE*1.5);
                 // let angle = calcAngleDegrees(this.claw.getPositionX(), this.claw.getPositionY(), this.initClawX ,this.initClawY);
                 // cableSegment.runAction(cc.rotateTo(0, angle));
                 this.cable.push(cableSegment);
@@ -309,7 +309,7 @@ var ScreenGoldDigger = cc.Layer.extend({
     },
     initTheClaw:function() {
         // hiện móc câu
-        this.claw = this.addSprite("hook-sheet0", this.initClawX, this.initClawY, 10);
+        this.claw = this.addSprite("hook-sheet0", this.initClawX, this.initClawY, 10, this.SCALE_RATE*1.5);
         this.claw.anchorY = 1;
 
         // đưa móc câu vào quỹ đạo quay
