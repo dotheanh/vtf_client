@@ -455,7 +455,7 @@ var ScreenGoldDigger = cc.Layer.extend({
     },
     onThrowClaw:function()
     {
-        this.checkSystemAndPlaySound("cable");
+        this.checkSystemAndPlaySound("cable", true);
         this.ableToTouchItem = true;
         // di chuyển móc câu
         let radian = this.angle/360 * 2 * Math.PI;
@@ -567,6 +567,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         // Todo: disable playing, high score or new game
     },
     onLevelPassed: function() {
+        this.checkSystemAndPlaySound("gamewon");
         this.gameState = 3;
         // text You Won
         this.txtYouWon = this.addSprite("textyouwon-sheet0", this.scrSize.width/2, this.scrSize.height/2 - this.scrSize.height/7, 5);

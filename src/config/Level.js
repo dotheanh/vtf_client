@@ -113,7 +113,7 @@ const TEST_MODE = false;
 
 const LEVELS = [
     {   // LEVEL 1
-        TARGET : TEST_MODE ? 0 : 500, // TARGET = 800 điểm tối thiểu để vượt qua level
+        TARGET : TEST_MODE ? 0 : 400, // TARGET = 800 điểm tối thiểu để vượt qua level
         DURATION : TEST_MODE ? 3 : 60,  // DURATION = 60 thời gian countdown level 
         MAX_ITEMS_COUNT : 80, // MAX_ITEMS_COUNT = 80 số lượng item tối đa trong màn chơi
         MIN_MOLES : 2,    // MIN_MOLES = 2 số lượng chuột tối thiểu trong màn chơi
@@ -122,7 +122,7 @@ const LEVELS = [
         ITEMS_LIST : [1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17], // list những item có thể xuất hiện trong level này
     },
     {   // LEVEL 2
-        TARGET : TEST_MODE ? 0 : 60,
+        TARGET : TEST_MODE ? 0 : 50,
         DURATION : TEST_MODE ? 3 : 40,
         MAX_ITEMS_COUNT : 0,
         MIN_MOLES : 60,
@@ -131,7 +131,7 @@ const LEVELS = [
         ITEMS_LIST : [],
     },
     {   // LEVEL 3
-        TARGET : TEST_MODE ? 0 : 550,
+        TARGET : TEST_MODE ? 0 : 600,
         DURATION : TEST_MODE ? 3 : 60,
         MAX_ITEMS_COUNT : 60,
         MIN_MOLES : 0,
@@ -140,7 +140,7 @@ const LEVELS = [
         ITEMS_LIST : [12, 13, 15],
     },
     {   // LEVEL 4
-        TARGET : TEST_MODE ? 0 : 450,
+        TARGET : TEST_MODE ? 0 : 550,
         DURATION : TEST_MODE ? 3 : 60,
         MAX_ITEMS_COUNT : 70,
         MIN_MOLES : 3,
@@ -149,7 +149,7 @@ const LEVELS = [
         ITEMS_LIST : [1,2,3,4,5,10,12,17],
     },
     {   // LEVEL 5
-        TARGET : TEST_MODE ? 0 : 500,
+        TARGET : TEST_MODE ? 0 : 450,
         DURATION : TEST_MODE ? 3 : 60,
         MAX_ITEMS_COUNT : 70,
         MIN_MOLES : 5,
@@ -158,7 +158,7 @@ const LEVELS = [
         ITEMS_LIST : [4,5,6,7,8,9,10,12,13],
     },
     {   // LEVEL 6
-        TARGET : TEST_MODE ? 0 : 80,
+        TARGET : TEST_MODE ? 0 : 120,
         DURATION : TEST_MODE ? 3 : 90,
         MAX_ITEMS_COUNT : 70,
         MIN_MOLES : 3,
