@@ -96,64 +96,34 @@ var ScreenGoldDigger = cc.Layer.extend({
         // SCALE RATE
         this.SCALE_RATE = this.scrSize.width/this.background.getContentSize().width;
         this.background.setScale(this.SCALE_RATE);
-        this.background.attr({
-            x: this.scrSize.width/2,
-            y: this.scrSize.height/2
-        });
+        this.background.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 });
         this.background.setLocalZOrder(0);
         this.addChild(this.background);
 
         this.initTheGame();
 
         // add money, level, target, countdown box
-        this.leftGuiframe = cc.Sprite.create("assests/game/images/guiframe-sheet0.png");
-        this.leftGuiframe.setScale(this.SCALE_RATE);
-        this.leftGuiframe.attr({ x: this.scrSize.width/7, y: this.scrSize.height - this.scrSize.height/5 });
-        this.addChild(this.leftGuiframe);
-        this.rightGuiframe = cc.Sprite.create("assests/game/images/guiframe-sheet0.png");
-        this.rightGuiframe.setScale(this.SCALE_RATE);
-        this.rightGuiframe.attr({ x: this.scrSize.width - this.scrSize.width/7, y: this.scrSize.height - this.scrSize.height/5 });
+        this.leftGuiframe = this.addSprite("guiframe-sheet0", this.scrSize.width/7, this.scrSize.height - this.scrSize.height/5);
+        this.rightGuiframe = this.addSprite("guiframe-sheet0", this.scrSize.width - this.scrSize.width/7, this.scrSize.height - this.scrSize.height/5);
         this.rightGuiframe.runAction(cc.flipX(true));
-        this.addChild(this.rightGuiframe);
         //money icon
-        this.moneyIcon = cc.Sprite.create("assests/game/images/guiscore-sheet0.png");
-        this.moneyIcon.setScale(this.SCALE_RATE);
-        this.moneyIcon.attr({ x: this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/19 });
-        this.moneyIcon.setLocalZOrder(5);
-        this.addChild(this.moneyIcon);
+        this.moneyIcon = this.addSprite("guiscore-sheet0", this.scrSize.width/21, this.scrSize.height - this.scrSize.height/19, 5);
         //star icon
-        this.starIcon = cc.Sprite.create("assests/game/images/guilevel-sheet0.png");
-        this.starIcon.setScale(this.SCALE_RATE);
-        this.starIcon.attr({ x: this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/6.7 });
-        this.starIcon.setLocalZOrder(5);
-        this.addChild(this.starIcon);
+        this.starIcon = this.addSprite("guilevel-sheet0", this.scrSize.width/21, this.scrSize.height - this.scrSize.height/6.7, 5);
         //target icon
-        this.targetIcon = cc.Sprite.create("assests/game/images/guitarget-sheet0.png");
-        this.targetIcon.setScale(this.SCALE_RATE);
-        this.targetIcon.attr({ x: this.scrSize.width-this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/19 });
-        this.targetIcon.setLocalZOrder(5);
-        this.addChild(this.targetIcon);
+        this.targetIcon = this.addSprite("guitarget-sheet0", this.scrSize.width-this.scrSize.width/21, this.scrSize.height - this.scrSize.height/19, 5);
         //time icon
-        this.timeIcon = cc.Sprite.create("assests/game/images/guitime-sheet0.png");
-        this.timeIcon.setScale(this.SCALE_RATE);
-        this.timeIcon.attr({ x: this.scrSize.width-this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/6.7 });
-        this.timeIcon.setLocalZOrder(5);
-        this.addChild(this.timeIcon);
+        this.timeIcon = this.addSprite("guitime-sheet0", this.scrSize.width-this.scrSize.width/21, this.scrSize.height - this.scrSize.height/6.7, 5);
 
 
-        var xPos = (this.scrSize.width - 220)/2
-        // add character
+        // add character excavator
         this.character = cc.Sprite.create("assests/game/images/excavator-sheet0.png", cc.rect(0,0,512,180));
-        this.character.attr({
-            x: xPos-10,
-            y: this.scrSize.height - this.scrSize.height*0.24
-        });
+        this.character.attr({x: (this.scrSize.width - 220)/2-10, y: this.scrSize.height - this.scrSize.height*0.24});
         this.character.setAnchorPoint(0,0.5);
         this.addChild(this.character);
 
         this.explodeAnimation = null;
         this.schedule(this.update);
-
     },
     initTheGame: function() {   // init các giá trị, hiển thị hình ảnh trước khi vào game
         // Todo: kiểm tra tất cả sprite item, có cái nào thì remove hết ra rồi tạo lại
@@ -182,38 +152,18 @@ var ScreenGoldDigger = cc.Layer.extend({
             this.itemSprites = [];
         }
         // btn Tap to play
-        this.playTxt = cc.Sprite.create("assests/game/images/texttaptoplay-sheet0.png");
-        this.playTxt.setScale(this.SCALE_RATE*1.5);
-        this.playTxt.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 - this.scrSize.height/7 });
-        this.playTxt.setLocalZOrder(5);
-        this.addChild(this.playTxt);
+        this.playTxt = this.addSprite("texttaptoplay-sheet0", this.scrSize.width/2, this.scrSize.height/2 - this.scrSize.height/7, 5, this.SCALE_RATE*1.5);
         this.playTxt.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),3));
         // pause button
-        this.btnPause = cc.Sprite.create("assests/game/images/buttonpause-sheet0.png");
-        this.btnPause.setScale(this.SCALE_RATE);
-        this.btnPause.attr({ x: this.scrSize.width-this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/4 });
-        this.btnPause.setLocalZOrder(5);
-        this.addChild(this.btnPause);
+        this.btnPause = this.addSprite("buttonpause-sheet0", this.scrSize.width-this.scrSize.width/21, this.scrSize.height - this.scrSize.height/4, 5);
         // resume button
-        this.btnResume = cc.Sprite.create("assests/game/images/buttonpause-sheet1.png");
-        this.btnResume.setScale(this.SCALE_RATE);
-        this.btnResume.attr({ x: this.scrSize.width-this.scrSize.width/21, y: this.scrSize.height - this.scrSize.height/4 });
-        this.btnResume.setLocalZOrder(5);
+        this.btnResume = this.addSprite("buttonpause-sheet1", this.scrSize.width-this.scrSize.width/21, this.scrSize.height - this.scrSize.height/4, 5);
         this.btnResume.setVisible(false);
-        this.addChild(this.btnResume);
         // mute button
-        this.btnMute = cc.Sprite.create("assests/game/images/buttonsound-sheet0.png");
-        this.btnMute.setScale(this.SCALE_RATE*0.8);
-        this.btnMute.attr({ x: this.scrSize.width-this.scrSize.width/10, y: this.scrSize.height - this.scrSize.height/4 });
-        this.btnMute.setLocalZOrder(5);
-        this.addChild(this.btnMute);
+        this.btnMute = this.addSprite("buttonsound-sheet0", this.scrSize.width-this.scrSize.width/10, this.scrSize.height - this.scrSize.height/4, 5, this.SCALE_RATE*0.8);
         // unmute button
-        this.btnUnmute = cc.Sprite.create("assests/game/images/buttonsound-sheet1.png");
-        this.btnUnmute.setScale(this.SCALE_RATE*0.8);
-        this.btnUnmute.attr({ x: this.scrSize.width-this.scrSize.width/10, y: this.scrSize.height - this.scrSize.height/4 });
-        this.btnUnmute.setLocalZOrder(5);
+        this.btnUnmute = this.addSprite("buttonsound-sheet1", this.scrSize.width-this.scrSize.width/10, this.scrSize.height - this.scrSize.height/4, 5, this.SCALE_RATE*0.8);
         this.btnUnmute.setVisible(false);
-        this.addChild(this.btnUnmute);
 
         cc.eventManager.removeAllListeners();
         // add click listener to start game
@@ -238,6 +188,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.itemValueBox.setFontSize(this.scrSize.width/15);
         this.addChild(this.itemValueBox);
 
+        // remove cable
         if (this.cable) {
             this.cable.forEach((cableSegment,index) => {
                 this.cable.splice(index, 1);
@@ -319,12 +270,9 @@ var ScreenGoldDigger = cc.Layer.extend({
             let dist = calDistance(this.claw.getPositionX(), this.claw.getPositionY(), this.initClawX, this.initClawY);
             let cableCount = dist/this._levelManager._currentLevel.CABLE_SEGMENT_LENGTH;
             for (let i = 0; i < cableCount; i++) {
-                var cableSegment = cc.Sprite.create("assests/game/images/cable.png");
-                //cableSegment.setScale(this.SCALE_RATE);
-                cableSegment.attr({ x: this.initClawX-i*deltaX/cableCount, y: this.initClawY-i*deltaY/cableCount });
+                var cableSegment = this.addSprite("cable", this.initClawX-i*deltaX/cableCount, this.initClawY-i*deltaY/cableCount, 5);
                 // let angle = calcAngleDegrees(this.claw.getPositionX(), this.claw.getPositionY(), this.initClawX ,this.initClawY);
                 // cableSegment.runAction(cc.rotateTo(0, angle));
-                this.addChild(cableSegment);
                 this.cable.push(cableSegment);
             }
             this.cable.forEach((cableSegment,index) => {
@@ -347,11 +295,7 @@ var ScreenGoldDigger = cc.Layer.extend({
     {
         this.checkSystemAndPlaySound("bonus"); // "score"
         this.itemValueBox.setString("+$" + itemValue);
-        this.shining = cc.Sprite.create("assests/game/images/sunrays-sheet0.png");
-        this.shining.setScale(this.SCALE_RATE/2);
-        this.shining.attr({ x: this.initClawX, y: this.initClawY - this.initClawY/12 });
-        this.shining.setLocalZOrder(3);
-        this.addChild(this.shining);
+        this.shining = this.addSprite("sunrays-sheet0", this.initClawX, this.initClawY - this.initClawY/12, 3, this.SCALE_RATE/2);
         this.shining.runAction(cc.sequence(cc.repeat(cc.sequence(cc.scaleBy(0.25, 1.5),cc.scaleBy(0.25, 2/3)),2), 
         cc.callFunc(()=>{this.removeChild(this.shining,true);}),
         cc.callFunc(()=>{this.itemValueBox.setString("")})));
@@ -365,14 +309,8 @@ var ScreenGoldDigger = cc.Layer.extend({
     },
     initTheClaw:function() {
         // hiện móc câu
-        this.claw = cc.Sprite.create("assests/game/images/hook-sheet0.png");
-        this.claw.attr({
-            x: this.initClawX,
-            y: this.initClawY
-        });
+        this.claw = this.addSprite("hook-sheet0", this.initClawX, this.initClawY, 10);
         this.claw.anchorY = 1;
-        this.claw.setLocalZOrder(10);
-        this.addChild(this.claw);
 
         // đưa móc câu vào quỹ đạo quay
         let angle = 180;
@@ -622,22 +560,14 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.gameState = 2;
         this.checkSystemAndPlaySound("gameover");
         // text Game over
-        this.txtGameOver = cc.Sprite.create("assests/game/images/textgameover-sheet0.png");
-        this.txtGameOver.setScale(this.SCALE_RATE);
-        this.txtGameOver.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 - this.scrSize.height/7 });
-        this.txtGameOver.setLocalZOrder(5);
-        this.addChild(this.txtGameOver);
+        this.txtGameOver = this.addSprite("textgameover-sheet0", this.scrSize.width/2, this.scrSize.height/2 - this.scrSize.height/7, 5);
         this.txtGameOver.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),3));
         // Todo: disable playing, high score or new game
     },
     onLevelPassed: function() {
         this.gameState = 3;
         // text You Won
-        this.txtYouWon = cc.Sprite.create("assests/game/images/textyouwon-sheet0.png");
-        this.txtYouWon.setScale(this.SCALE_RATE);
-        this.txtYouWon.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 - this.scrSize.height/7 });
-        this.txtYouWon.setLocalZOrder(5);
-        this.addChild(this.txtYouWon);
+        this.txtYouWon = this.addSprite("textyouwon-sheet0", this.scrSize.width/2, this.scrSize.height/2 - this.scrSize.height/7, 5);
         this.txtYouWon.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),3));
         // Todo: disable playing, high score or new game
     },
@@ -657,11 +587,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.btnPause.setVisible(false);
         this.gameState = -1;
         // text Paused
-        this.txtPaused = cc.Sprite.create("assests/game/images/textpaused-sheet0.png");
-        this.txtPaused.setScale(this.SCALE_RATE);
-        this.txtPaused.attr({ x: this.scrSize.width/2, y: this.scrSize.height/2 - this.scrSize.height/7 });
-        this.txtPaused.setLocalZOrder(15);
-        this.addChild(this.txtPaused);
+        this.txtPaused = this.addSprite("textpaused-sheet0", this.scrSize.width/2, this.scrSize.height/2 - this.scrSize.height/7, 15);
         this.txtPaused.runAction(cc.repeat(cc.sequence(cc.scaleBy(1.5, 1.1),cc.scaleBy(1.5, 0.9)),10));
         cc.director.pause();
     },
@@ -689,6 +615,14 @@ var ScreenGoldDigger = cc.Layer.extend({
         let soundFile_mp3 = "assests/game/media/" + soundName + ".mp3";
         if (this.sound)
             cc.audioEngine.playMusic(cc.sys.os == cc.sys.OS_WP8 || cc.sys.os == cc.sys.OS_WINRT ? soundFile_ogg : soundFile_mp3, isLoop);
+    },
+    addSprite: function(imgName, xPos, yPos, zOrder = 0, scaleRate = this.SCALE_RATE) {
+        sprite = cc.Sprite.create("assests/game/images/" + imgName + ".png");
+        sprite.setScale(scaleRate);
+        sprite.attr({ x: xPos, y: yPos });
+        sprite.setLocalZOrder(zOrder);
+        this.addChild(sprite);
+        return sprite;
     }
 
 });
