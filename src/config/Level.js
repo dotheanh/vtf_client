@@ -119,7 +119,7 @@ const LEVELS = [
         MIN_MOLES : 2,    // MIN_MOLES = 2 số lượng chuột tối thiểu trong màn chơi
         MAX_MOLES : 7,    // MAX_MOLES = 7 số lượng chuột tối đa trong màn chơi
         CABLE_SEGMENT_LENGTH : 2, // CABLE_SEGMENT_LENGTH = 2 độ dài mỗi đơn vị dây cáp
-        ITEMS_LIST : [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17], // list những item có thể xuất hiện trong level này
+        ITEMS_LIST : [1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17], // list những item có thể xuất hiện trong level này
     },
     {   // LEVEL 2
         TARGET : TEST_MODE ? 0 : 60,
@@ -137,7 +137,7 @@ const LEVELS = [
         MIN_MOLES : 0,
         MAX_MOLES : 0,
         CABLE_SEGMENT_LENGTH : 2,
-        ITEMS_LIST : [11, 12, 13, 15],
+        ITEMS_LIST : [12, 13, 15],
     },
     {   // LEVEL 4
         TARGET : TEST_MODE ? 0 : 450,
@@ -146,7 +146,7 @@ const LEVELS = [
         MIN_MOLES : 3,
         MAX_MOLES : 7,
         CABLE_SEGMENT_LENGTH : 2,
-        ITEMS_LIST : [1,2,3,4,5,10,11,12,17],
+        ITEMS_LIST : [1,2,3,4,5,10,12,17],
     },
     {   // LEVEL 5
         TARGET : TEST_MODE ? 0 : 500,
@@ -155,7 +155,7 @@ const LEVELS = [
         MIN_MOLES : 5,
         MAX_MOLES : 10,
         CABLE_SEGMENT_LENGTH : 2,
-        ITEMS_LIST : [4,5,6,7,8,9,10,11,12,13],
+        ITEMS_LIST : [4,5,6,7,8,9,10,12,13],
     },
     {   // LEVEL 6
         TARGET : TEST_MODE ? 0 : 80,

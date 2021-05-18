@@ -319,6 +319,8 @@ var ScreenGoldDigger = cc.Layer.extend({
         var rotateClawRL = cc.rotateBy(2, angle);
         this.rotatingAction = cc.sequence(initRotateClaw, cc.repeat(cc.sequence(rotateClawLR, rotateClawRL), 99));
         this.claw.runAction(this.rotatingAction);
+        this.touchAnchor = new cc.Node();
+        this.claw.addChild(this.touchAnchor);
     },
     generateItem:function()
     {
@@ -497,8 +499,8 @@ var ScreenGoldDigger = cc.Layer.extend({
         }
     },
     checkTouchItem: function(item){
-        let x = this.claw.getPositionX();
-        let y = this.claw.getPositionY();
+        let x = this.touchAnchor.getBoundingBoxToWorld().x;
+        let y = this.touchAnchor.getBoundingBoxToWorld().y;
         let itemX = item.getPositionX();
         let itemY = item.getPositionY();
         let itemWidth = item.getBoundingBox().height/1.3;
