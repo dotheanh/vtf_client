@@ -173,10 +173,10 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.claw = null;
         const cThis = this;
         if (this.itemSprites) { // nếu đã tồn tại item sprite thì xóa toàn bộ, nếu chưa có thì init null
-            this.itemSprites.forEach((item, index) => {
-                cThis.removeChild(item.sprite,true);
+            for (var index = cThis.itemSprites.length - 1; index >= 0; index--) {
+                cThis.removeChild(cThis.itemSprites[index].sprite,true);
                 cThis.itemSprites.splice(index, 1);
-            })
+            }
         }
         else {
             this.itemSprites = [];
@@ -548,13 +548,15 @@ var ScreenGoldDigger = cc.Layer.extend({
         explosionCenter_x = spriteBomb.getPositionX();
         explosionCenter_y = spriteBomb.getPositionY();
         thisCursor.doExplodeAnimation(explosionCenter_x, explosionCenter_y);
-        thisCursor.itemSprites.forEach((item, index) => {
+        // destroy các item trong bán kính nổ
+        for (var index = thisCursor.itemSprites.length - 1; index >= 0; index--) {
+            let item = thisCursor.itemSprites[index];
             let distance = calDistance(explosionCenter_x, explosionCenter_y, item.sprite.getPositionX(), item.sprite.getPositionY());
             if ( distance - item.sprite.getBoundingBox().width/2 < 200) {   // item nằm trong bán kính nổ
-                item.sprite.getParent().removeChild(item.sprite,true);
+                thisCursor.removeChild(item.sprite,true);
                 thisCursor.itemSprites.splice(index, 1);
             }
-        })
+        }
     },
     checkTouchItem: function(item){
         let x = this.claw.getPositionX();
