@@ -3,91 +3,109 @@ const ITEMS_DATA = [
         itemType: 1,
         itemValue: 10,
         itemSpeed: 120,
+        imgName: "gold_01-sheet0"
     },
     {   // vàng 2
         itemType: 2,
         itemValue: 20,
         itemSpeed: 110,
+        imgName: "gold_02-sheet0"
     },
     {   // vàng 3
         itemType: 3,
         itemValue: 30,
         itemSpeed: 100,
+        imgName: "gold_03-sheet0"
     },
     {   // vàng 5
         itemType: 4,
         itemValue: 50,
         itemSpeed: 80,
+        imgName: "gold_05-sheet0"
     },
     {   // vàng 10
         itemType: 5,
         itemValue: 100,
         itemSpeed: 60,
+        imgName: "gold_10-sheet0"
     },
     {   // đá 1
         itemType: 6,
         itemValue: 5,
         itemSpeed: 100,
+        imgName: "rock_01-sheet0"
     },
     {   // đá 4
         itemType: 7,
         itemValue: 10,
         itemSpeed: 80,
+        imgName: "rock_04-sheet0"
     },
     {   // đá 7
         itemType: 8,
         itemValue: 15,
         itemSpeed: 60,
+        imgName: "rock_07-sheet0"
     },
     {   // đá 10
         itemType: 9,
         itemValue: 20,
         itemSpeed: 50,
+        imgName: "rock_10-sheet0"
     },
     {   // mystery bag
         itemType: 10,
         itemValue: -1,  // return random
         itemSpeed: 80,
+        imgName: "bonus-sheet0"
     },
     {   // bonus bomb
         itemType: 11,
         itemValue: 0,
         itemSpeed: 100,
+        imgName: "bonusbomb-sheet0"
     },
     {   // jewel 1
         itemType: 12,
         itemValue: 100,
         itemSpeed: 150,
+        imgName: "jewel_01-sheet0"
     },
     {   // jewel 2
         itemType: 13,
         itemValue: 110,
         itemSpeed: 150,
+        imgName: "jewel_02-sheet0"
     },
     {   // jewel 3
         itemType: 14,
         itemValue: 120,
         itemSpeed: 150,
+        imgName: "jewel_03-sheet0"
     },
     {   // barrel
         itemType: 15,
         itemValue: 10,
         itemSpeed: 120,
+        imgName: "barrel-sheet0"
     },
     {   // treasure
         itemType: 16,
         itemValue: 180,
         itemSpeed: 60,
+        imgName: "treasure-sheet0"
     },
     {   // skull
         itemType: 17,
         itemValue: 20,
         itemSpeed: 120,
+        imgName: "skull-sheet0"
     },
     {   // mole
         itemType: 18,
         itemValue: 10,
         itemSpeed: 150,
+        //imgName: "mole"
     },
 ];
 

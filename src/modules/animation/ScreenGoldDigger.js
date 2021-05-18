@@ -10,6 +10,17 @@ function randomInt(min, max) { // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+function getItemImgUrl(itemType) {
+    let imgName = "";
+    ITEMS_DATA.every(function(item, index) {
+        if (item.itemType === itemType) {
+            imgName = item.imgName;
+            return false;
+        }
+        else return true;
+    })
+    return "assests/game/images/"+ imgName + ".png";
+}
 function getItemSpeed(itemType) {
     let speed = 0;
     ITEMS_DATA.every(function(item, index) {
@@ -380,25 +391,8 @@ var ScreenGoldDigger = cc.Layer.extend({
         {
             let item;
             let itemType = this._levelManager._currentLevel.ITEMS_LIST[Math.floor(Math.random() * this._levelManager._currentLevel.ITEMS_LIST.length)];   // lấy ra item type ngẫu nhiên trong list
-            switch (itemType) {
-                case 1: item = cc.Sprite.create("assests/game/images/gold_01-sheet0.png"); break;
-                case 2: item = cc.Sprite.create("assests/game/images/gold_02-sheet0.png"); break;
-                case 3: item = cc.Sprite.create("assests/game/images/gold_03-sheet0.png"); break;
-                case 4: item = cc.Sprite.create("assests/game/images/gold_05-sheet0.png"); break;
-                case 5: item = cc.Sprite.create("assests/game/images/gold_10-sheet0.png"); break;
-                case 6: item = cc.Sprite.create("assests/game/images/rock_01-sheet0.png"); break;
-                case 7: item = cc.Sprite.create("assests/game/images/rock_04-sheet0.png"); break;
-                case 8: item = cc.Sprite.create("assests/game/images/rock_07-sheet0.png"); break;
-                case 9: item = cc.Sprite.create("assests/game/images/rock_10-sheet0.png"); break;
-                case 10: item = cc.Sprite.create("assests/game/images/bonus-sheet0.png"); break;
-                case 11: item = cc.Sprite.create("assests/game/images/bonusbomb-sheet0.png"); break;
-                case 12: item = cc.Sprite.create("assests/game/images/jewel_01-sheet0.png"); break;
-                case 13: item = cc.Sprite.create("assests/game/images/jewel_02-sheet0.png"); break;
-                case 14: item = cc.Sprite.create("assests/game/images/jewel_03-sheet0.png"); break;
-                case 15: item = cc.Sprite.create("assests/game/images/barrel-sheet0.png"); break;
-                case 16: item = cc.Sprite.create("assests/game/images/treasure-sheet0.png"); break;
-                case 17: item = cc.Sprite.create("assests/game/images/skull-sheet0.png"); break;
-            }
+            item = cc.Sprite.create(getItemImgUrl(itemType));
+            
             let overwrite = false;
             let randomCount = 0;
             let newCoord;
