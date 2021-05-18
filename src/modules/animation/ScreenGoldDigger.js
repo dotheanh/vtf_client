@@ -149,6 +149,21 @@ function checkClickButton(touch, button) {
     // check if touched in button area
     return (x1 < touch.getLocation().x && touch.getLocation().x < x2 && y1 < touch.getLocation().y && touch.getLocation().y < y2)
 }
+function calcAngleDegrees(x1, y1, x2, y2)
+{
+    var w = x2 - x1;
+    var h = y2 - y1;
+
+    var atan = Math.atan(h/w) / Math.PI * 180;
+    if (w < 0 || h < 0)
+        atan += 180;
+    if (w > 0 && h < 0)
+        atan -= 180;
+    if (atan < 0)
+        atan += 360;
+
+    return atan % 360;
+}
 
 var ScreenGoldDigger = cc.Layer.extend({
     _itemMenu:null,
@@ -362,6 +377,8 @@ var ScreenGoldDigger = cc.Layer.extend({
                 var cableSegment = cc.Sprite.create("assests/game/images/cable.png");
                 //cableSegment.setScale(this.SCALE_RATE);
                 cableSegment.attr({ x: this.initClawX-i*deltaX/cableCount, y: this.initClawY-i*deltaY/cableCount });
+                // let angle = calcAngleDegrees(this.claw.getPositionX(), this.claw.getPositionY(), this.initClawX ,this.initClawY);
+                // cableSegment.runAction(cc.rotateTo(0, angle));
                 this.addChild(cableSegment);
                 this.cable.push(cableSegment);
             }
