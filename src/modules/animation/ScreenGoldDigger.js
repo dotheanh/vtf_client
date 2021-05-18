@@ -156,6 +156,7 @@ var ScreenGoldDigger = cc.Layer.extend({
 
     },
     initTheGame: function() {   // init các giá trị, hiển thị hình ảnh trước khi vào game
+        console.log("initTheGame");
         // Todo: kiểm tra tất cả sprite item, có cái nào thì remove hết ra rồi tạo lại
         if (this.txtYouWon) this.removeChild(this.txtYouWon,true);
         if (this.levelBox) this.removeChild(this.levelBox,true);
@@ -173,14 +174,26 @@ var ScreenGoldDigger = cc.Layer.extend({
         this.claw = null;
         const cThis = this;
         if (this.itemSprites) { // nếu đã tồn tại item sprite thì xóa toàn bộ, nếu chưa có thì init null
-            this.itemSprites.forEach((item, index) => {
-                cThis.removeChild(item.sprite,true);
-                cThis.itemSprites.splice(index, 1);
-            })
+            // this.itemSprites.forEach((item, index) => {
+            //     cThis.removeChild(item.sprite,true);
+            //     cThis.itemSprites.splice(index, 1);
+            //     this.itemsCount--;
+            //     console.log("itemsCount i: " + this.itemsCount);
+            //     console.log("itemSprites.length i: " + this.itemSprites.length);
+            // })
+            for (var i = cThis.itemSprites.length - 1; i >= 0; i--) {
+                cThis.removeChild(cThis.itemSprites[i].sprite,true);
+                cThis.itemSprites.splice(i, 1);
+                cThis.itemsCount--;
+                console.log("itemsCount i: " + cThis.itemsCount);
+                console.log("itemSprites.length i: " + cThis.itemSprites.length);
+            }
         }
         else {
             this.itemSprites = [];
         }
+        if (this.itemsCount === undefined)  this.itemsCount = 0;
+        //if (this.molesCount === undefined)  this.molesCount = 0;
         // btn Tap to play
         this.playTxt = cc.Sprite.create("assests/game/images/texttaptoplay-sheet0.png");
         this.playTxt.setScale(this.SCALE_RATE*1.5);
@@ -262,6 +275,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         fr.view(ScreenGoldDigger);
     },
     update: function (dt){
+        console.log("item: " + this.itemsCount );//+ " mole: " + this.molesCount
         // mỗi khi màn hình được vẽ lại thì hàm này được gọi => tính toán vị trí, tọa độ
         if (this.claw != null) {
             this.angle = 270-this.claw.getRotation();
@@ -287,6 +301,8 @@ var ScreenGoldDigger = cc.Layer.extend({
                         item.sprite.runAction(cc.moveTo(t*1.15, this.initClawX, this.initClawY));
                         this.claw.runAction(cc.sequence(this.absolutelyReturnClawAction,cc.callFunc(this.onNormalReturnClaw, this),cc.callFunc(()=>{item.sprite.getParent().removeChild(item.sprite,true);}),cc.callFunc(()=>{this.scoreBox.setString(this.score)})));
                         this.itemSprites.splice(index, 1);
+                        //this.molesCount--;
+                        this.itemsCount--;
                     }
                     else {
                         switch (item.itemType) {
@@ -308,6 +324,7 @@ var ScreenGoldDigger = cc.Layer.extend({
                         cc.callFunc(()=>{item.sprite.getParent().removeChild(item.sprite,true);}), // xóa item đi
                         cc.callFunc(()=>{this.scoreBox.setString(this.score)})));   // cập nhật điểm
                         this.itemSprites.splice(index, 1);
+                        this.itemsCount--;
                     }
                 }
             })
@@ -423,6 +440,7 @@ var ScreenGoldDigger = cc.Layer.extend({
                     sprite: item,
                     itemType: itemType
                 });
+                this.itemsCount++;
             }
         }
         // add some mole
@@ -492,6 +510,7 @@ var ScreenGoldDigger = cc.Layer.extend({
                 }
                 else if (cThis.gameState === 3) {
                     // next level
+                    console.log("next lv")
                     if (40 < touch.getLocation().x && touch.getLocation().x < cThis.scrSize.width-40 && 40 < touch.getLocation().y && touch.getLocation().y < cThis.scrSize.height - cThis.scrSize.height/2.2) {
                         cThis.onFinishLevel();
                     }
@@ -553,6 +572,7 @@ var ScreenGoldDigger = cc.Layer.extend({
             if ( distance - item.sprite.getBoundingBox().width/2 < 200) {   // item nằm trong bán kính nổ
                 item.sprite.getParent().removeChild(item.sprite,true);
                 thisCursor.itemSprites.splice(index, 1);
+                this.itemsCount--;
             }
         })
     },
@@ -615,6 +635,8 @@ var ScreenGoldDigger = cc.Layer.extend({
             sprite: _sprite_mole,
             itemType: 18
         });
+        //cThis.molesCount++;
+        cThis.itemsCount++;
     },
     onGameOver: function() {
         this.gameState = 2;
@@ -629,6 +651,7 @@ var ScreenGoldDigger = cc.Layer.extend({
         // Todo: disable playing, high score or new game
     },
     onLevelPassed: function() {
+        console.log("onLevelPassed");
         this.gameState = 3;
         // text You Won
         this.txtYouWon = cc.Sprite.create("assests/game/images/textyouwon-sheet0.png");

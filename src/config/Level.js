@@ -109,12 +109,12 @@ const ITEMS_DATA = [
     },
 ];
 
-const TEST_MODE = false;
+const TEST_MODE = true;
 
 const LEVELS = [
     {   // LEVEL 1
         TARGET : TEST_MODE ? 0 : 800, // TARGET = 800 điểm tối thiểu để vượt qua level
-        DURATION : TEST_MODE ? 3 : 60,  // DURATION = 60 thời gian countdown level 
+        DURATION : TEST_MODE ? 5 : 60,  // DURATION = 60 thời gian countdown level 
         MAX_ITEMS_COUNT : 80, // MAX_ITEMS_COUNT = 80 số lượng item tối đa trong màn chơi
         MIN_MOLES : 2,    // MIN_MOLES = 2 số lượng chuột tối thiểu trong màn chơi
         MAX_MOLES : 7,    // MAX_MOLES = 7 số lượng chuột tối đa trong màn chơi
@@ -123,7 +123,7 @@ const LEVELS = [
     },
     {   // LEVEL 2
         TARGET : TEST_MODE ? 0 : 160,
-        DURATION : TEST_MODE ? 3 : 40,
+        DURATION : TEST_MODE ? 5 : 40,
         MAX_ITEMS_COUNT : 0,
         MIN_MOLES : 60,
         MAX_MOLES : 80,
@@ -132,7 +132,7 @@ const LEVELS = [
     },
     {   // LEVEL 3
         TARGET : TEST_MODE ? 0 : 200,
-        DURATION : TEST_MODE ? 3 : 60,
+        DURATION : TEST_MODE ? 5 : 60,
         MAX_ITEMS_COUNT : 60,
         MIN_MOLES : 0,
         MAX_MOLES : 0,
